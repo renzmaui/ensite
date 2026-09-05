@@ -1,0 +1,1 @@
+- [Approved video lyrics design](approved-video-lyrics-design.md) — Use Video Lyrics Studio as the active design; Current Video Lyrics Studio is reference-only.
