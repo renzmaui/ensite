@@ -39,7 +39,7 @@ type Track = {
   number: number;
   title: string;
   artist: string;
-  section: 'ACT 1' | 'ACT 2' | 'ENCORE' | 'ENHYPEN OT6 SONGS (in progress)';
+  section: 'ENHYPEN OT6 SONGS (in progress)';
   duration: string;
   lyrics: TimedLine[];
   fanchant: TimedLine[];
@@ -110,7 +110,7 @@ const setlist: Track[] = [
     section: 'ENHYPEN OT6 SONGS (in progress)',
     duration: '3:03',
     lyrics: lines([
-      [14, 'The room is bright enough to see you', 'opening'],
+      [0, 'The room is bright enough to see you', 'opening'],
       [24, 'Every little voice becomes a choir', 'verse', 'singalong'],
       [55, 'Keep the home light burning', 'chorus', 'singalong'],
       [94, 'We will carry what we came here for', 'chorus'],
@@ -119,7 +119,7 @@ const setlist: Track[] = [
       [220, 'Goodnight, goodnight, goodnight', 'close'],
     ]),
     fanchant: lines([
-      [14, 'HEY! HEY!', 'opening', 'chant'],
+      [0, 'HEY! HEY!', 'opening', 'chant'],
       [55, 'HOME LIGHT!', 'response', 'chant'],
       [94, 'CARRY IT HOME!', 'all fans', 'chant'],
       [133, 'LOOK FOR THE WINDOWS!', 'call', 'chant'],
@@ -170,7 +170,7 @@ function Home() {
     () =>
       [
         ...selectedTrack.lyrics.map((line) => ({ ...line, tone: line.tone ?? 'lyric', source: 'LYRIC' as const })),
-        ...selectedTrack.fanchant.map((line) => ({ ...line, tone: line.tone ?? 'chant', source: 'FANCHANT' as const })),
+        ...selectedTrack.fanchant.map((line) => ({ ...line, tone: 'chant' as const, source: 'FANCHANT' as const })),
       ].sort((a, b) => a.time - b.time || (a.source === 'LYRIC' ? -1 : 1)),
     [selectedTrack],
   );
@@ -248,7 +248,7 @@ function Home() {
 
   useEffect(() => {
     activeLineRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  }, [activeIndex, isPlaying, selectedId]);
+  }, [activeIndex, selectedId]);
 
   const chooseTrack = (track: Track) => {
     setSelectedId(track.id);
@@ -308,6 +308,7 @@ function Home() {
     setIsMuted((muted) => !muted);
   };
 
+  const sections = Array.from(new Set(setlist.map((track) => track.section)));
   const tracksBySection = (section: Track['section']) => setlist.filter((track) => track.section === section);
 
   return (
@@ -331,12 +332,12 @@ function Home() {
       <main className="app-main">
         <section className="room-heading" aria-labelledby="page-title">
           <div>
-            <div className="eyebrow" data-testid="text-room-kicker">the afterhours / summer room tour</div>
-            <h1 id="page-title">The room sings <em>back.</em></h1>
+            <div className="eyebrow" data-testid="text-room-kicker"> ENHYPEN / fanchant </div>
+            <h1 id="page-title">Let our voices reach <em>ENHYPEN.</em></h1>
           </div>
           <div className="heading-note">
             <span className="heading-rule" />
-            <p>Follow the set. Catch the cue.<br />Keep the whole room in time.</p>
+            <p>Fanchants made easy for every ENGENE.<br />Learn It. Chant It. Make It LOUD.</p>
           </div>
         </section>
 
@@ -358,7 +359,7 @@ function Home() {
             <h2 className="setlist-title">SUMMER<br /><span>ROOM TOUR</span></h2>
             <p className="setlist-intro">Choose a song to load its cues into the room.</p>
             <div className="setlist-sections">
-              {(['ACT 1', 'ACT 2', 'ENCORE'] as const).map((section) => (
+              {sections.map((section) => (
                 <section className="set-section" key={section} aria-labelledby={`heading-${section.replace(' ', '-')}`}>
                   <div className="section-heading" id={`heading-${section.replace(' ', '-')}`}>
                     <span>{section}</span><i />
@@ -474,20 +475,19 @@ function Home() {
             <div className="lyrics-head">
               <div className="lyrics-headline">
                 <div>
-                  <div className="eyebrow">live transcript / {String(selectedTrack.number).padStart(2, '0')}</div>
+                  <div className="eyebrow">TRACK/ {String(selectedTrack.number).padStart(2, '0')}</div>
                   <h2 className="lyrics-title">One room. One cue sheet.</h2>
                 </div>
                 <div className="sync-status" data-testid="status-sync"><span className="live-dot" aria-hidden="true" />{apiReady ? 'synced' : 'demo sync'}</div>
               </div>
               <div className="transcript-track">{selectedTrack.title} <span>·</span> {selectedTrack.artist}</div>
-              <div className="transcript-note">Every cue stays visible together. Tap a line to jump the performance.</div>
             </div>
             <div className="lyric-scroll" data-testid="list-transcript">
               {transcriptLines.map((line, index) => {
-                const isActive = isPlaying && index === activeIndex;
+                const isActive = index === activeIndex;
                 const tone = line.tone ?? 'lyric';
                 return (
-                  <button className={`lyric-line tone-${tone} source-${line.source.toLowerCase()} ${isActive ? 'active' : ''}`} data-testid={`button-transcript-line-${index}`} key={`${selectedTrack.id}-${line.source}-${line.time}-${index}`} onClick={() => seekTo(line.time)} ref={isActive ? activeLineRef : undefined} type="button">
+                  <button className={`lyric-line tone-${tone} source-${line.source.toLowerCase()} ${isActive ? 'active' : ''}`} data-testid={`button-transcript-line-${index}`} key={`${selectedTrack.id}-${line.source}-${line.time}`} onClick={() => seekTo(line.time)} ref={isActive ? activeLineRef : undefined} type="button">
                     <span className="line-content">
                       <span className="line-text">{line.text}</span>
                     </span>
@@ -497,6 +497,7 @@ function Home() {
             </div>
           </aside>
         </section>
+        <footer className="studio-footer">For ENGENEs, by MAUI</footer>
       </main>
 
       {isModalOpen && (
