@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "Video Lyrics Studio"
+description = "A responsive YouTube viewing experience with synchronized lyrics and fanchant prompts beside the video, designed for music fans practicing along with their favorite performances."
+version = "1.0.0"
+id = "artifacts/video-lyrics"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 18796
+
+[services.development]
+run = "pnpm --filter @workspace/video-lyrics run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/video-lyrics", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/video-lyrics/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "18796"
+BASE_PATH = "/"
