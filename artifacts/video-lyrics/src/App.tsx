@@ -85,17 +85,16 @@ const lines = (texts: Array<[number, string, string?, LineTone?]>): TimedLine[] 
 
 const setlist: Track[] = [
   {
-    id: 'paper-moons',
+    id: 'XO',
     number: 1,
-    title: 'PAPER MOONS',
-    artist: 'The Afterhours',
-    section: 'ACT 1',
-    duration: '3:32',
+    title: 'XO (Only If You Say Yes)',
+    artist: 'ENHYPEN',
+    section: 'SECTION',
+    duration: '2:43',
     lyrics: lines([
-      [0, 'Lights down, breathe in', 'opening'],
-      [12, 'We found a little fire in the quiet', 'verse 01'],
-      [27, 'Hands up, let the whole room know', 'pre-chorus', 'singalong'],
-      [41, 'We are louder when we sing together', 'chorus', 'singalong'],
+      [20, 'XO XO'],
+      [25, 'KISS ME'],
+      [27, "DON'T SAY NO"],
       [57, 'Stay with me through the afterglow', 'chorus'],
       [75, 'Every heartbeat keeps the rhythm', 'verse 02'],
       [91, 'Call my name, I will answer back', 'build', 'singalong'],
@@ -106,9 +105,7 @@ const setlist: Track[] = [
       [194, 'See you at the next replay', 'outro'],
     ]),
     fanchant: lines([
-      [0, 'Settle in', 'all fans / soft'],
-      [12, 'HEY! HEY!', 'count it in', 'chant'],
-      [27, 'Hands up! Hands up!', 'call', 'chant'],
+      [28, 'EN! HA! I! PEUN', 'all fans / soft'],
       [41, 'WE SING TOGETHER!', 'response', 'chant'],
       [57, 'STAY! STAY! STAY!', 'response', 'chant'],
       [75, 'Oh-oh-oh-oh', 'keep the pulse', 'chant'],
