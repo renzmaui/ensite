@@ -89,32 +89,19 @@ const setlist: Track[] = [
     number: 1,
     title: 'XO (Only If You Say Yes)',
     artist: 'ENHYPEN',
-    section: 'SECTION',
+    section: 'ACT 1',
     duration: '2:43',
     lyrics: lines([
       [20, 'XO XO'],
       [25, 'KISS ME'],
       [27, "DON'T SAY NO"],
-      [57, 'Stay with me through the afterglow', 'chorus'],
-      [75, 'Every heartbeat keeps the rhythm', 'verse 02'],
-      [91, 'Call my name, I will answer back', 'build', 'singalong'],
-      [107, 'This is our night, our little orbit', 'bridge'],
-      [126, 'One more time, make the ceiling shake', 'final chorus', 'singalong'],
-      [145, 'Hold the moment, do not let it fade', 'final chorus'],
-      [170, 'Lights up, we are still here', 'outro'],
-      [194, 'See you at the next replay', 'outro'],
+      [30, "NEW LYRICS"],
+      [34, 'NEW LYRICS'],
     ]),
     fanchant: lines([
       [28, 'EN! HA! I! PEUN', 'all fans / soft'],
-      [41, 'WE SING TOGETHER!', 'response', 'chant'],
-      [57, 'STAY! STAY! STAY!', 'response', 'chant'],
-      [75, 'Oh-oh-oh-oh', 'keep the pulse', 'chant'],
-      [91, 'Your name! Your name!', 'call and answer', 'chant'],
-      [107, 'THIS IS OUR NIGHT!', 'all fans / loud', 'chant'],
-      [126, 'ONE MORE TIME!', 'call', 'chant'],
-      [145, 'WE ARE STILL HERE!', 'response', 'chant'],
-      [170, 'HEY! HEY! HEY!', 'final lift', 'chant'],
-      [194, 'See you next time', 'soft landing'],
+      [30, 'NEW FANCHANT', 'response', 'chant'],
+      [32, 'NEW FANCHANT', 'response', 'chant'],
     ]),
   },
   {
@@ -382,7 +369,7 @@ function Home() {
     () =>
       [
         ...selectedTrack.lyrics.map((line) => ({ ...line, tone: line.tone ?? 'lyric', source: 'LYRIC' as const })),
-        ...selectedTrack.fanchant.map((line) => ({ ...line, tone: 'chant' as const, source: 'FANCHANT' as const })),
+        ...selectedTrack.fanchant.map((line) => ({ ...line, tone: line.tone ?? 'chant', source: 'FANCHANT' as const })),
       ].sort((a, b) => a.time - b.time || (a.source === 'LYRIC' ? -1 : 1)),
     [selectedTrack],
   );
@@ -699,14 +686,10 @@ function Home() {
                 const isActive = index === activeIndex;
                 const tone = line.tone ?? 'lyric';
                 return (
-                  <button className={`lyric-line tone-${tone} source-${line.source.toLowerCase()} ${isActive ? 'active' : ''}`} data-testid={`button-transcript-line-${index}`} key={`${selectedTrack.id}-${line.source}-${line.time}`} onClick={() => seekTo(line.time)} ref={isActive ? activeLineRef : undefined} type="button">
-                    <span className="line-time">{formatTime(line.time)}</span>
+                  <button className={`lyric-line tone-${tone} source-${line.source.toLowerCase()} ${isActive ? 'active' : ''}`} data-testid={`button-transcript-line-${index}`} key={`${selectedTrack.id}-${line.source}-${line.time}-${index}`} onClick={() => seekTo(line.time)} ref={isActive ? activeLineRef : undefined} type="button">
                     <span className="line-content">
-                      <span className="line-label">{line.source === 'FANCHANT' ? 'FANCHANT' : line.tone === 'singalong' ? 'SING-ALONG' : 'LYRIC'}</span>
                       <span className="line-text">{line.text}</span>
-                      {line.note && <span className="line-note">{line.note}</span>}
                     </span>
-                    <span className="line-pulse" aria-hidden="true" />
                   </button>
                 );
               })}

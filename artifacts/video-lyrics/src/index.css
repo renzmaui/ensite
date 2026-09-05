@@ -850,9 +850,8 @@ button {
   border: 1px solid transparent;
   color: var(--ink);
   display: flex;
-  gap: 0.72rem;
   margin: 0.13rem 0;
-  padding: 0.72rem 0.65rem;
+  padding: 0.78rem 0.8rem;
   text-align: left;
   transition: transform 160ms ease, background-color 160ms ease, opacity 160ms ease;
   width: 100%;
@@ -864,6 +863,7 @@ button {
 }
 
 .lyric-line.active {
+  background: var(--yellow);
   border-color: var(--ink);
   transform: translateX(4px);
 }
@@ -876,96 +876,16 @@ button {
   color: var(--red);
 }
 
-.lyric-line.tone-singalong.active {
-  background: var(--green-soft);
-}
-
-.lyric-line.tone-chant.active {
-  background: var(--red-soft);
-}
-
-.line-time {
-  color: var(--muted-foreground);
-  flex: 0 0 2.65rem;
-  font-family: var(--app-font-mono);
-  font-size: 0.53rem;
-  padding-top: 0.2rem;
-}
-
-.tone-singalong .line-time {
-  color: var(--green);
-}
-
-.tone-chant .line-time {
-  color: var(--red);
-}
-
 .line-content {
   flex: 1;
 }
 
-.line-label {
-  color: var(--muted-foreground);
-  display: block;
-  font-family: var(--app-font-mono);
-  font-size: 0.48rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  margin-bottom: 0.22rem;
-}
-
-.tone-singalong .line-label {
-  color: var(--green);
-}
-
-.tone-chant .line-label {
-  color: var(--red);
-}
-
 .line-text {
   font-family: var(--app-font-display);
-  font-size: 0.98rem;
+  font-size: 1.06rem;
   font-weight: 700;
   letter-spacing: -0.035em;
   line-height: 1.05;
-}
-
-.line-note {
-  color: var(--muted-foreground);
-  display: block;
-  font-size: 0.51rem;
-  margin-top: 0.3rem;
-}
-
-.tone-singalong .line-note {
-  color: var(--green);
-}
-
-.tone-chant .line-note {
-  color: var(--red);
-}
-
-.line-pulse {
-  background: var(--ink);
-  border-radius: 50%;
-  flex: 0 0 0.35rem;
-  height: 0.35rem;
-  margin-top: 0.27rem;
-  opacity: 0;
-  transform: scale(0.5);
-}
-
-.tone-singalong .line-pulse {
-  background: var(--green);
-}
-
-.tone-chant .line-pulse {
-  background: var(--red);
-}
-
-.lyric-line.active .line-pulse {
-  animation: line-pulse 1.4s ease-in-out infinite;
-  opacity: 1;
 }
 
 .under-grid {
