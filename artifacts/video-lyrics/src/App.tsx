@@ -78,7 +78,7 @@ declare global {
 
 const queryClient = new QueryClient();
 const FALLBACK_DURATION = 212;
-const INITIAL_URL = 'https://www.youtube.com/watch?v=M7lc1UVf-VE';
+const INITIAL_URL = 'https://www.youtube.com/watch?v=Scufsa1FB2Q';
 
 const lines = (texts: Array<[number, string, string?, LineTone?]>): TimedLine[] =>
   texts.map(([time, text, note, tone]) => ({ time, text, note, tone }));
