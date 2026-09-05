@@ -39,7 +39,7 @@ type Track = {
   number: number;
   title: string;
   artist: string;
-  section: 'ACT 1' | 'ACT 2' | 'ENCORE';
+  section: 'ACT 1' | 'ACT 2' | 'ENCORE' | 'ENHYPEN OT6 SONGS (in progress)';
   duration: string;
   lyrics: TimedLine[];
   fanchant: TimedLine[];
@@ -88,228 +88,29 @@ const setlist: Track[] = [
     id: 'XO',
     number: 1,
     title: 'XO (Only If You Say Yes)',
-    artist: 'ENHYPEN',
-    section: 'ACT 1',
+    artist: 'ENHYPEN at WEVERSE CON FESTIVAL 2026',
+    section: 'ENHYPEN OT6 SONGS (in progress)',
     duration: '2:43',
     lyrics: lines([
       [20, 'XO XO'],
       [25, 'KISS ME'],
       [27, "DON'T SAY NO"],
       [30, "NEW LYRICS"],
-      [34, 'NEW LYRICS'],
     ]),
     fanchant: lines([
-      [28, 'EN! HA! I! PEUN', 'all fans / soft'],
-      [30, 'NEW FANCHANT', 'response', 'chant'],
-      [32, 'NEW FANCHANT', 'response', 'chant'],
+      [28, 'EN! HA! I! PEUN'],
+      [30, 'NEW FANCHANT'],
     ]),
-  },
-  {
-    id: 'neon-static',
-    number: 2,
-    title: 'NEON STATIC',
-    artist: 'The Afterhours',
-    section: 'ACT 1',
-    duration: '3:46',
-    lyrics: lines([
-      [0, 'A red light flickers on the avenue', 'intro'],
-      [15, 'We keep the signal warm between us', 'verse'],
-      [34, 'If you hear me, let the whole room glow', 'pre-chorus', 'singalong'],
-      [52, 'No sleep, no silence, no turning back', 'chorus', 'singalong'],
-      [78, 'Electric hearts in a paper city', 'verse 02'],
-      [101, 'Say it once, then say it louder', 'bridge', 'singalong'],
-      [126, 'Neon static in our hands tonight', 'final chorus', 'singalong'],
-      [164, 'Leave the radio on when we go', 'outro'],
-    ]),
-    fanchant: lines([
-      [0, 'After-hours!', 'opening call', 'chant'],
-      [15, 'HEY! HEY!', 'count it in', 'chant'],
-      [34, 'LET IT GLOW!', 'response', 'chant'],
-      [52, 'NO SLEEP! NO SLEEP!', 'all fans', 'chant'],
-      [101, 'LOUDER! LOUDER!', 'call and answer', 'chant'],
-      [126, 'NEON STATIC!', 'final lift', 'chant'],
-      [164, 'HEY! HEY! HEY!', 'close', 'chant'],
-    ]),
-  },
-  {
-    id: 'honey-weather',
-    number: 3,
-    title: 'HONEY WEATHER',
-    artist: 'The Afterhours',
-    section: 'ACT 1',
-    duration: '4:08',
-    lyrics: lines([
-      [0, 'Warm rain on the roof of the taxi', 'opening'],
-      [21, 'You draw a sun into the window', 'verse'],
-      [44, 'Keep that little summer in your chest', 'chorus', 'singalong'],
-      [72, 'We can make a season out of nothing', 'chorus'],
-      [104, 'Every street is turning gold', 'bridge', 'singalong'],
-      [139, 'Honey weather, stay a little longer', 'final chorus', 'singalong'],
-      [182, 'Let the city cool around us', 'outro'],
-      [217, 'We will meet where the light begins', 'outro'],
-    ]),
-    fanchant: lines([
-      [0, 'Oh-oh-oh', 'soft opening', 'chant'],
-      [44, 'STAY! STAY!', 'response', 'chant'],
-      [72, 'MAKE IT GOLD!', 'call', 'chant'],
-      [104, 'TURN IT UP!', 'all fans', 'chant'],
-      [139, 'HONEY WEATHER!', 'final response', 'chant'],
-      [182, 'HEY! HEY!', 'close', 'chant'],
-    ]),
-  },
-  {
-    id: 'slow-burn',
-    number: 4,
-    title: 'SLOW BURN',
-    artist: 'The Afterhours',
-    section: 'ACT 1',
-    duration: '3:58',
-    lyrics: lines([
-      [0, 'No grand entrance, just a spark', 'intro'],
-      [19, 'We learned the shape of being honest', 'verse'],
-      [46, 'Take your time, I am right here', 'chorus', 'singalong'],
-      [83, 'A slow burn is still a fire', 'chorus'],
-      [119, 'When the drums return, we rise', 'bridge', 'singalong'],
-      [153, 'Take your time, I am right here', 'final chorus', 'singalong'],
-      [191, 'Leave one window open', 'outro'],
-    ]),
-    fanchant: lines([
-      [0, 'Slow burn!', 'opening', 'chant'],
-      [46, 'RIGHT HERE! RIGHT HERE!', 'response', 'chant'],
-      [83, 'STILL A FIRE!', 'call', 'chant'],
-      [119, 'WE RISE!', 'all fans', 'chant'],
-      [153, 'RIGHT HERE! RIGHT HERE!', 'final response', 'chant'],
-    ]),
-  },
-  {
-    id: 'north-star',
-    number: 5,
-    title: 'NORTH STAR',
-    artist: 'The Afterhours',
-    section: 'ACT 2',
-    duration: '4:21',
-    lyrics: lines([
-      [0, 'The house lights fade into the blue', 'opening'],
-      [22, 'Every face becomes a constellation', 'verse'],
-      [49, 'Find me where the north star bends', 'chorus', 'singalong'],
-      [83, 'We are not lost, we are becoming', 'chorus'],
-      [122, 'Turn the doubt into a drumbeat', 'bridge', 'singalong'],
-      [161, 'Find me where the north star bends', 'final chorus', 'singalong'],
-      [204, 'Keep a little light for tomorrow', 'outro'],
-    ]),
-    fanchant: lines([
-      [0, 'North star!', 'opening', 'chant'],
-      [49, 'FIND US! FIND US!', 'response', 'chant'],
-      [83, 'WE ARE BECOMING!', 'all fans', 'chant'],
-      [122, 'TURN IT UP!', 'call', 'chant'],
-      [161, 'NORTH STAR!', 'final lift', 'chant'],
-    ]),
-  },
-  {
-    id: 'golden-hour',
-    number: 6,
-    title: 'GOLDEN HOUR',
-    artist: 'The Afterhours',
-    section: 'ACT 2',
-    duration: '3:39',
-    lyrics: lines([
-      [0, 'Save a seat beside the window', 'intro'],
-      [18, 'We are glowing at the edges', 'verse'],
-      [39, 'Sing it like the morning knows', 'chorus', 'singalong'],
-      [66, 'Golden hour, do not let it go', 'chorus', 'singalong'],
-      [101, 'A little louder for the back row', 'bridge', 'singalong'],
-      [133, 'Golden hour, do not let it go', 'final chorus'],
-      [170, 'We leave the lights on', 'outro'],
-    ]),
-    fanchant: lines([
-      [0, 'Hey, hey', 'soft start', 'chant'],
-      [39, 'SING IT OUT!', 'response', 'chant'],
-      [66, 'GOLDEN HOUR!', 'all fans', 'chant'],
-      [101, 'BACK ROW! BACK ROW!', 'call', 'chant'],
-      [133, 'DO NOT LET IT GO!', 'final response', 'chant'],
-    ]),
-  },
-  {
-    id: 'open-water',
-    number: 7,
-    title: 'OPEN WATER',
-    artist: 'The Afterhours',
-    section: 'ACT 2',
-    duration: '4:02',
-    lyrics: lines([
-      [0, 'We made a map from the mistakes', 'verse 01'],
-      [25, 'The horizon is a moving line', 'verse 02'],
-      [51, 'Open water, open hands', 'chorus', 'singalong'],
-      [86, 'Let the undertow take what it can', 'chorus'],
-      [124, 'I can hear you from the shore', 'bridge', 'singalong'],
-      [159, 'Open water, open hands', 'final chorus', 'singalong'],
-      [198, 'The horizon is a moving line', 'outro'],
-    ]),
-    fanchant: lines([
-      [0, 'Open water!', 'opening', 'chant'],
-      [51, 'OPEN HANDS!', 'response', 'chant'],
-      [86, 'LET IT GO!', 'call', 'chant'],
-      [124, 'FROM THE SHORE!', 'all fans', 'chant'],
-      [159, 'OPEN WATER!', 'final response', 'chant'],
-    ]),
-  },
-  {
-    id: 'last-train',
-    number: 8,
-    title: 'LAST TRAIN HOME',
-    artist: 'The Afterhours',
-    section: 'ACT 2',
-    duration: '4:17',
-    lyrics: lines([
-      [0, 'Midnight gathers in the station', 'opening'],
-      [20, 'We are laughing like we made it', 'verse'],
-      [48, 'Take the last train home with me', 'chorus', 'singalong'],
-      [82, 'Leave the ache beneath the city', 'chorus'],
-      [116, 'If we miss it, we can walk', 'bridge', 'singalong'],
-      [151, 'Take the last train home with me', 'final chorus', 'singalong'],
-      [205, 'Same moon, different street', 'outro'],
-    ]),
-    fanchant: lines([
-      [0, 'Last train!', 'opening', 'chant'],
-      [48, 'HOME WITH ME!', 'response', 'chant'],
-      [82, 'LEAVE IT BEHIND!', 'call', 'chant'],
-      [116, 'WE CAN WALK!', 'all fans', 'chant'],
-      [151, 'LAST TRAIN HOME!', 'final response', 'chant'],
-    ]),
-  },
-  {
-    id: 'paper-crown',
-    number: 9,
-    title: 'PAPER CROWN',
-    artist: 'The Afterhours',
-    section: 'ENCORE',
-    duration: '3:51',
-    lyrics: lines([
-      [0, 'Back on stage, shoes in our hands', 'encore'],
-      [18, 'You kept the room alive for us', 'verse'],
-      [43, 'Wear the night like a paper crown', 'chorus', 'singalong'],
-      [79, 'We are still here, still around', 'chorus', 'singalong'],
-      [118, 'Let the confetti find the floor', 'bridge'],
-      [151, 'Wear the night like a paper crown', 'final chorus', 'singalong'],
-      [189, 'One more song before goodbye', 'outro'],
-    ]),
-    fanchant: lines([
-      [0, 'ONE MORE SONG!', 'encore call', 'chant'],
-      [43, 'PAPER CROWN!', 'response', 'chant'],
-      [79, 'STILL HERE! STILL HERE!', 'all fans', 'chant'],
-      [118, 'LET IT FALL!', 'call', 'chant'],
-      [151, 'PAPER CROWN!', 'final response', 'chant'],
-    ]),
-  },
+  },  
   {
     id: 'home-light',
     number: 10,
-    title: 'HOME LIGHT',
-    artist: 'The Afterhours',
-    section: 'ENCORE',
-    duration: '4:30',
+    title: 'STEALER',
+    artist: 'ENHYPEN at BLOOD SAGA in SEOUL',
+    section: 'ENHYPEN OT6 SONGS (in progress)',
+    duration: '3:03',
     lyrics: lines([
-      [0, 'The room is bright enough to see you', 'opening'],
+      [14, 'The room is bright enough to see you', 'opening'],
       [24, 'Every little voice becomes a choir', 'verse', 'singalong'],
       [55, 'Keep the home light burning', 'chorus', 'singalong'],
       [94, 'We will carry what we came here for', 'chorus'],
@@ -318,7 +119,7 @@ const setlist: Track[] = [
       [220, 'Goodnight, goodnight, goodnight', 'close'],
     ]),
     fanchant: lines([
-      [0, 'HEY! HEY!', 'opening', 'chant'],
+      [14, 'HEY! HEY!', 'opening', 'chant'],
       [55, 'HOME LIGHT!', 'response', 'chant'],
       [94, 'CARRY IT HOME!', 'all fans', 'chant'],
       [133, 'LOOK FOR THE WINDOWS!', 'call', 'chant'],
@@ -447,7 +248,7 @@ function Home() {
 
   useEffect(() => {
     activeLineRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  }, [activeIndex, selectedId]);
+  }, [activeIndex, isPlaying, selectedId]);
 
   const chooseTrack = (track: Track) => {
     setSelectedId(track.id);
@@ -683,7 +484,7 @@ function Home() {
             </div>
             <div className="lyric-scroll" data-testid="list-transcript">
               {transcriptLines.map((line, index) => {
-                const isActive = index === activeIndex;
+                const isActive = isPlaying && index === activeIndex;
                 const tone = line.tone ?? 'lyric';
                 return (
                   <button className={`lyric-line tone-${tone} source-${line.source.toLowerCase()} ${isActive ? 'active' : ''}`} data-testid={`button-transcript-line-${index}`} key={`${selectedTrack.id}-${line.source}-${line.time}-${index}`} onClick={() => seekTo(line.time)} ref={isActive ? activeLineRef : undefined} type="button">

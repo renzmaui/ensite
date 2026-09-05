@@ -863,7 +863,7 @@ button {
 }
 
 .lyric-line.active {
-  background: var(--red-soft);
+  background: var(--green-soft);
   border-color: var(--ink);
   transform: translateX(4px);
 }
@@ -883,9 +883,13 @@ button {
 .line-text {
   font-family: var(--app-font-display);
   font-size: 1.06rem;
-  font-weight: 700;
+  font-weight: 500;
   letter-spacing: -0.035em;
   line-height: 1.05;
+}
+
+.lyric-line.active .line-text {
+  font-weight: 800;
 }
 
 .under-grid {
