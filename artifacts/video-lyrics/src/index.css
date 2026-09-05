@@ -380,6 +380,10 @@ button {
   background: var(--ink);
 }
 
+.highlight-swatch {
+  background: var(--yellow);
+}
+
 .workspace {
   align-items: start;
   display: grid;
@@ -814,41 +818,13 @@ button {
   padding: 0 0.25rem;
 }
 
-.mode-switch {
-  border-bottom: 1px solid var(--border);
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  margin-top: 0.8rem;
-}
-
-.mode-button {
-  background: transparent;
+.transcript-note {
   color: var(--muted-foreground);
   font-family: var(--app-font-mono);
-  font-size: 0.58rem;
-  letter-spacing: 0.07em;
-  padding: 0.6rem 0.3rem;
-  position: relative;
-  text-transform: uppercase;
-}
-
-.mode-button.active {
-  color: var(--ink);
-  font-weight: 700;
-}
-
-.mode-button.active::after {
-  background: var(--green);
-  bottom: -1px;
-  content: '';
-  height: 3px;
-  left: 0;
-  position: absolute;
-  width: 100%;
-}
-
-.mode-button:last-child.active::after {
-  background: var(--red);
+  font-size: 0.53rem;
+  letter-spacing: 0.01em;
+  line-height: 1.4;
+  margin-top: 0.65rem;
 }
 
 .lyric-scroll {
@@ -926,6 +902,24 @@ button {
 
 .line-content {
   flex: 1;
+}
+
+.line-label {
+  color: var(--muted-foreground);
+  display: block;
+  font-family: var(--app-font-mono);
+  font-size: 0.48rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.22rem;
+}
+
+.tone-singalong .line-label {
+  color: var(--green);
+}
+
+.tone-chant .line-label {
+  color: var(--red);
 }
 
 .line-text {

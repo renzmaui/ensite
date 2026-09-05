@@ -21,7 +21,6 @@ import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import NotFound from '@/pages/not-found';
 
-type Mode = 'lyrics' | 'fanchant';
 type LineTone = 'lyric' | 'singalong' | 'chant';
 
 type TimedLine = {
@@ -29,6 +28,10 @@ type TimedLine = {
   text: string;
   note?: string;
   tone?: LineTone;
+};
+
+type TranscriptLine = TimedLine & {
+  source: 'LYRIC' | 'FANCHANT';
 };
 
 type Track = {
@@ -363,7 +366,6 @@ function Home() {
   const [urlDraft, setUrlDraft] = useState(INITIAL_URL);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [urlError, setUrlError] = useState('');
-  const [mode, setMode] = useState<Mode>('lyrics');
   const [selectedId, setSelectedId] = useState(setlist[0].id);
   const [isPlaying, setIsPlaying] = useState(false);
   const [playbackSeconds, setPlaybackSeconds] = useState(0);
@@ -379,14 +381,21 @@ function Home() {
   const activeLineRef = useRef<HTMLButtonElement | null>(null);
 
   const selectedTrack = useMemo(() => setlist.find((track) => track.id === selectedId) ?? setlist[0], [selectedId]);
-  const activeLines = mode === 'lyrics' ? selectedTrack.lyrics : selectedTrack.fanchant;
+  const transcriptLines = useMemo<TranscriptLine[]>(
+    () =>
+      [
+        ...selectedTrack.lyrics.map((line) => ({ ...line, tone: line.tone ?? 'lyric', source: 'LYRIC' as const })),
+        ...selectedTrack.fanchant.map((line) => ({ ...line, tone: 'chant' as const, source: 'FANCHANT' as const })),
+      ].sort((a, b) => a.time - b.time || (a.source === 'LYRIC' ? -1 : 1)),
+    [selectedTrack],
+  );
   const activeIndex = useMemo(() => {
     let index = 0;
-    activeLines.forEach((line, lineIndex) => {
+    transcriptLines.forEach((line, lineIndex) => {
       if (line.time <= playbackSeconds) index = lineIndex;
     });
     return index;
-  }, [activeLines, playbackSeconds]);
+  }, [transcriptLines, playbackSeconds]);
   const progress = duration > 0 ? Math.min(100, (playbackSeconds / duration) * 100) : 0;
 
   useEffect(() => {
@@ -454,12 +463,11 @@ function Home() {
 
   useEffect(() => {
     activeLineRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  }, [activeIndex, mode, selectedId]);
+  }, [activeIndex, selectedId]);
 
   const chooseTrack = (track: Track) => {
     setSelectedId(track.id);
     setPlaybackSeconds(0);
-    setMode('lyrics');
   };
 
   const togglePlayback = useCallback(() => {
@@ -552,6 +560,7 @@ function Home() {
           <span className="legend-item"><i className="legend-swatch chant-swatch" /> red / fanchant</span>
           <span className="legend-item"><i className="legend-swatch sing-swatch" /> green / sing-along</span>
           <span className="legend-item"><i className="legend-swatch lyric-swatch" /> black / lyric</span>
+          <span className="legend-item"><i className="legend-swatch highlight-swatch" /> yellow / controls</span>
           <span className="legend-track"><ListMusic size={13} /> {setlist.length} cues in tonight&apos;s set</span>
         </section>
 
@@ -681,24 +690,25 @@ function Home() {
               <div className="lyrics-headline">
                 <div>
                   <div className="eyebrow">live transcript / {String(selectedTrack.number).padStart(2, '0')}</div>
-                  <h2 className="lyrics-title">{mode === 'lyrics' ? 'Sing the line.' : 'Raise the room.'}</h2>
+                  <h2 className="lyrics-title">One room. One cue sheet.</h2>
                 </div>
                 <div className="sync-status" data-testid="status-sync"><span className="live-dot" aria-hidden="true" />{apiReady ? 'synced' : 'demo sync'}</div>
               </div>
               <div className="transcript-track">{selectedTrack.title} <span>·</span> {selectedTrack.artist}</div>
-              <div className="mode-switch" role="tablist" aria-label="Transcript mode">
-                <button className={`mode-button ${mode === 'lyrics' ? 'active' : ''}`} data-testid="button-mode-lyrics" onClick={() => setMode('lyrics')} role="tab" aria-selected={mode === 'lyrics'} type="button">LYRIC</button>
-                <button className={`mode-button ${mode === 'fanchant' ? 'active' : ''}`} data-testid="button-mode-fanchant" onClick={() => setMode('fanchant')} role="tab" aria-selected={mode === 'fanchant'} type="button">FANCHANT</button>
-              </div>
+              <div className="transcript-note">Every cue stays visible together. Tap a line to jump the performance.</div>
             </div>
-            <div className={`lyric-scroll ${mode === 'fanchant' ? 'chant' : ''}`} data-testid={`list-${mode}`}>
-              {activeLines.map((line, index) => {
+            <div className="lyric-scroll" data-testid="list-transcript">
+              {transcriptLines.map((line, index) => {
                 const isActive = index === activeIndex;
-                const tone = mode === 'fanchant' ? 'chant' : line.tone ?? 'lyric';
+                const tone = line.tone ?? 'lyric';
                 return (
-                  <button className={`lyric-line tone-${tone} ${isActive ? 'active' : ''}`} data-testid={`button-${mode}-line-${index}`} key={`${selectedTrack.id}-${mode}-${line.time}`} onClick={() => seekTo(line.time)} ref={isActive ? activeLineRef : undefined} type="button">
+                  <button className={`lyric-line tone-${tone} source-${line.source.toLowerCase()} ${isActive ? 'active' : ''}`} data-testid={`button-transcript-line-${index}`} key={`${selectedTrack.id}-${line.source}-${line.time}`} onClick={() => seekTo(line.time)} ref={isActive ? activeLineRef : undefined} type="button">
                     <span className="line-time">{formatTime(line.time)}</span>
-                    <span className="line-content"><span className="line-text">{line.text}</span>{line.note && <span className="line-note">{line.note}</span>}</span>
+                    <span className="line-content">
+                      <span className="line-label">{line.source === 'FANCHANT' ? 'FANCHANT' : line.tone === 'singalong' ? 'SING-ALONG' : 'LYRIC'}</span>
+                      <span className="line-text">{line.text}</span>
+                      {line.note && <span className="line-note">{line.note}</span>}
+                    </span>
                     <span className="line-pulse" aria-hidden="true" />
                   </button>
                 );
