@@ -21,7 +21,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import NotFound from '@/pages/not-found';
 
-type LineTone = 'lyric' | 'singalong' | 'chant';
+type LineTone = 'singalong' | 'chant' | 'lyric';
 
 type TimedLine = {
   time: number;
@@ -39,7 +39,8 @@ type Track = {
   number: number;
   title: string;
   artist: string;
-  section: 'ENHYPEN OT6 SONGS (in progress)';
+  type?: string;
+  section: string;
   duration: string;
   lyrics: TimedLine[];
   fanchant: TimedLine[];
@@ -78,37 +79,65 @@ declare global {
 
 const queryClient = new QueryClient();
 const FALLBACK_DURATION = 212;
-const INITIAL_URL = 'https://youtu.be/Scufsa1FB2Q?si=egyw57Yx08jw_EcL';
+const INITIAL_URL = 'https://www.youtube.com/watch?v=MT-4Bk1Lw8g';
 
 const lines = (texts: Array<[number, string, string?, LineTone?]>): TimedLine[] =>
   texts.map(([time, text, note, tone]) => ({ time, text, note, tone }));
 
 const setlist: Track[] = [
   {
-    id: 'XO',
+    id: 'BLOODY PARADISE',
     number: 1,
-    title: 'XO (Only If You Say Yes)',
-    artist: 'ENHYPEN at WEVERSE CON FESTIVAL 2026',
-    section: 'ENHYPEN OT6 SONGS (in progress)',
-    duration: '2:43',
+    title: 'BLOODY PARADISE',
+    artist: 'ENHYPEN',
+    type: 'OFFICIAL MUSIC VIDEO',
+    section: 'SONGS',
+    duration: '2:14',
+
     lyrics: lines([
-      [20, 'XO XO'],
+      [20, "we're go"],
       [25, 'KISS ME'],
       [27, "DON'T SAY NO"],
-      [30, "NEW LYRICS"],
+      [30, 'NEW LYRICS'],
     ]),
+
     fanchant: lines([
       [28, 'EN! HA! I! PEUN'],
       [30, 'NEW FANCHANT'],
     ]),
-  },  
+  },
+
   {
-    id: 'home-light',
-    number: 10,
+    id: 'XO',
+    number: 2,
+    title: 'XO (Only If You Say Yes)',
+    artist: 'ENHYPEN',
+    type: 'WEVERSE CON FESTIVAL 2026',
+    section: 'SONGS',
+    duration: '2:43',
+
+    lyrics: lines([
+      [20, 'XO XO'],
+      [25, 'KISS ME'],
+      [27, "DON'T SAY NO"],
+      [30, 'NEW LYRICS'],
+    ]),
+
+    fanchant: lines([
+      [28, 'EN! HA! I! PEUN'],
+      [30, 'NEW FANCHANT'],
+    ]),
+  },
+
+  {
+    id: 'STEALER',
+    number: 3,
     title: 'STEALER',
-    artist: 'ENHYPEN at BLOOD SAGA in SEOUL',
-    section: 'ENHYPEN OT6 SONGS (in progress)',
+    artist: 'ENHYPEN',
+    type: 'BLOOD SAGA in SEOUL',
+    section: 'SONGS',
     duration: '3:03',
+
     lyrics: lines([
       [0, 'The room is bright enough to see you', 'opening'],
       [24, 'Every little voice becomes a choir', 'verse', 'singalong'],
@@ -118,6 +147,7 @@ const setlist: Track[] = [
       [176, 'Keep the home light burning', 'final chorus', 'singalong'],
       [220, 'Goodnight, goodnight, goodnight', 'close'],
     ]),
+
     fanchant: lines([
       [0, 'HEY! HEY!', 'opening', 'chant'],
       [55, 'HOME LIGHT!', 'response', 'chant'],
@@ -169,11 +199,26 @@ function Home() {
   const transcriptLines = useMemo<TranscriptLine[]>(
     () =>
       [
-        ...selectedTrack.lyrics.map((line) => ({ ...line, tone: line.tone ?? 'lyric', source: 'LYRIC' as const })),
-        ...selectedTrack.fanchant.map((line) => ({ ...line, tone: 'chant' as const, source: 'FANCHANT' as const })),
-      ].sort((a, b) => a.time - b.time || (a.source === 'LYRIC' ? -1 : 1)),
+        ...selectedTrack.lyrics.map((line) => ({
+          ...line,
+          tone: line.tone ?? 'lyric',
+          source: 'LYRIC' as const,
+        })),
+
+        ...selectedTrack.fanchant.map((line) => ({
+          ...line,
+          tone: 'chant' as const,
+          source: 'FANCHANT' as const,
+        })),
+      ].sort(
+        (a, b) =>
+          a.time - b.time ||
+          (a.source === 'LYRIC' ? -1 : 1)
+      ),
+
     [selectedTrack],
   );
+
   const activeIndex = useMemo(() => {
     let index = 0;
     transcriptLines.forEach((line, lineIndex) => {
@@ -308,7 +353,6 @@ function Home() {
     setIsMuted((muted) => !muted);
   };
 
-  const sections = Array.from(new Set(setlist.map((track) => track.section)));
   const tracksBySection = (section: Track['section']) => setlist.filter((track) => track.section === section);
 
   return (
@@ -342,24 +386,24 @@ function Home() {
         </section>
 
         <section className="legend-strip" aria-label="Transcript color legend">
-          <span className="legend-title">READ THE ROOM</span>
-          <span className="legend-item"><i className="legend-swatch chant-swatch" /> red / fanchant</span>
-          <span className="legend-item"><i className="legend-swatch sing-swatch" /> green / sing-along</span>
-          <span className="legend-item"><i className="legend-swatch lyric-swatch" /> black / lyric</span>
+          <span className="legend-title">quick guide</span>
+          <span className="legend-item"><i className="legend-swatch chant-swatch" /> red / fanchant </span>
+          <span className="legend-item"><i className="legend-swatch lyric-swatch" /> black / lyrics </span>
           <span className="legend-item"><i className="legend-swatch highlight-swatch" /> yellow / controls</span>
-          <span className="legend-track"><ListMusic size={13} /> {setlist.length} cues in tonight&apos;s set</span>
+          <span className="legend-track"><ListMusic size={3} /> {setlist.length} songs in this playlist</span>
         </section>
 
         <section className="workspace" aria-label="Setlist, performance player, and synchronized transcript">
           <aside className="setlist-panel" data-testid="panel-setlist">
             <div className="panel-cap">
-              <span className="eyebrow">tonight&apos;s running order</span>
-              <span className="set-count">10 tracks</span>
+              <span className="eyebrow">ENGENEs PLAYLIST</span>
+              <span className="set-count">3 tracks</span>
             </div>
-            <h2 className="setlist-title">SUMMER<br /><span>ROOM TOUR</span></h2>
-            <p className="setlist-intro">Choose a song to load its cues into the room.</p>
+            <h2 className="setlist-title">BLOOD SAGA<br /><span>TOUR</span></h2>
+            <p className="setlist-intro"> </p> {/*leave it blank atm hahaha*/}
             <div className="setlist-sections">
-              {sections.map((section) => (
+              {/*{(['ACT 1', 'ACT 2', 'ENCORE'] as const).map((section) => if multiple sections*/}
+              {(['SONGS'] as const).map((section) =>( 
                 <section className="set-section" key={section} aria-labelledby={`heading-${section.replace(' ', '-')}`}>
                   <div className="section-heading" id={`heading-${section.replace(' ', '-')}`}>
                     <span>{section}</span><i />
@@ -435,7 +479,7 @@ function Home() {
                 <div className="track-info">
                   <span className="track-kicker">NOW PLAYING / TRACK {String(selectedTrack.number).padStart(2, '0')}</span>
                   <h2 className="track-title" data-testid="text-track-title">{selectedTrack.title}</h2>
-                  <p className="track-artist" data-testid="text-track-artist">{selectedTrack.artist} · summer room tour</p>
+                  <p className="track-artist" data-testid="text-track-artist">{selectedTrack.artist} · ENHYPEN</p>
                 </div>
                 <div className="track-tags">
                   <span className="tag tag-highlight">{selectedTrack.section}</span>
@@ -488,16 +532,19 @@ function Home() {
                 const tone = line.tone ?? 'lyric';
                 return (
                   <button className={`lyric-line tone-${tone} source-${line.source.toLowerCase()} ${isActive ? 'active' : ''}`} data-testid={`button-transcript-line-${index}`} key={`${selectedTrack.id}-${line.source}-${line.time}`} onClick={() => seekTo(line.time)} ref={isActive ? activeLineRef : undefined} type="button">
+                    <span className="line-time">{formatTime(line.time)}</span>
                     <span className="line-content">
+                      <span className="line-label">{line.source === 'FANCHANT' ? 'FANCHANT' : line.tone === 'singalong' ? 'SING-ALONG' : 'LYRIC'}</span>
                       <span className="line-text">{line.text}</span>
+                      {line.note && <span className="line-note">{line.note}</span>}
                     </span>
+                    <span className="line-pulse" aria-hidden="true" />
                   </button>
                 );
               })}
             </div>
           </aside>
         </section>
-        <footer className="studio-footer">For ENGENEs, by MAUI</footer>
       </main>
 
       {isModalOpen && (
