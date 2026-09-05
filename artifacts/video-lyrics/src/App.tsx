@@ -1,17 +1,18 @@
-import { type ChangeEvent, type CSSProperties, type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { type ChangeEvent, type CSSProperties, type FormEvent, type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Route, Switch, Router as WouterRouter } from 'wouter';
 import {
   Check,
   ChevronDown,
   Heart,
   Link2,
+  ListMusic,
   Maximize2,
   Pause,
   Play,
   Radio,
   Share2,
-  Sparkles,
   Volume2,
+  VolumeX,
   X,
 } from 'lucide-react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -21,11 +22,24 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import NotFound from '@/pages/not-found';
 
 type Mode = 'lyrics' | 'fanchant';
+type LineTone = 'lyric' | 'singalong' | 'chant';
 
 type TimedLine = {
   time: number;
   text: string;
   note?: string;
+  tone?: LineTone;
+};
+
+type Track = {
+  id: string;
+  number: number;
+  title: string;
+  artist: string;
+  section: 'ACT 1' | 'ACT 2' | 'ENCORE';
+  duration: string;
+  lyrics: TimedLine[];
+  fanchant: TimedLine[];
 };
 
 type YouTubePlayer = {
@@ -35,6 +49,8 @@ type YouTubePlayer = {
   pauseVideo: () => void;
   playVideo: () => void;
   seekTo: (seconds: number, allowSeekAhead: boolean) => void;
+  muteVideo?: () => void;
+  unMuteVideo?: () => void;
 };
 
 declare global {
@@ -51,11 +67,7 @@ declare global {
           };
         },
       ) => YouTubePlayer;
-      PlayerState?: {
-        PLAYING: number;
-        PAUSED: number;
-        ENDED: number;
-      };
+      PlayerState?: { PLAYING: number; PAUSED: number; ENDED: number };
     };
     onYouTubeIframeAPIReady?: () => void;
   }
@@ -65,34 +77,268 @@ const queryClient = new QueryClient();
 const FALLBACK_DURATION = 212;
 const INITIAL_URL = 'https://www.youtube.com/watch?v=M7lc1UVf-VE';
 
-const lyrics: TimedLine[] = [
-  { time: 0, text: 'Lights down, breathe in', note: 'opening' },
-  { time: 12, text: 'We found a little fire in the quiet', note: 'verse 01' },
-  { time: 27, text: 'Hands up, let the whole room know', note: 'pre-chorus' },
-  { time: 41, text: 'We are louder when we sing together', note: 'chorus' },
-  { time: 57, text: 'Stay with me through the afterglow', note: 'chorus' },
-  { time: 75, text: 'Every heartbeat keeps the rhythm', note: 'verse 02' },
-  { time: 91, text: 'Call my name, I will answer back', note: 'build' },
-  { time: 107, text: 'This is our night, our little orbit', note: 'bridge' },
-  { time: 126, text: 'One more time, make the ceiling shake', note: 'final chorus' },
-  { time: 145, text: 'Hold the moment, do not let it fade', note: 'final chorus' },
-  { time: 170, text: 'Lights up, we are still here', note: 'outro' },
-  { time: 194, text: 'See you at the next replay', note: 'outro' },
-];
+const lines = (texts: Array<[number, string, string?, LineTone?]>): TimedLine[] =>
+  texts.map(([time, text, note, tone]) => ({ time, text, note, tone }));
 
-const fanchant: TimedLine[] = [
-  { time: 0, text: '— settle in', note: 'all fans / soft' },
-  { time: 12, text: 'HEY! HEY!', note: 'count it in' },
-  { time: 27, text: 'Hands up! Hands up!', note: 'call' },
-  { time: 41, text: 'WE SING TOGETHER!', note: 'response' },
-  { time: 57, text: 'STAY! STAY! STAY!', note: 'response' },
-  { time: 75, text: 'Oh-oh-oh-oh', note: 'keep the pulse' },
-  { time: 91, text: 'Your name! Your name!', note: 'call and answer' },
-  { time: 107, text: 'THIS IS OUR NIGHT!', note: 'all fans / loud' },
-  { time: 126, text: 'ONE MORE TIME!', note: 'call' },
-  { time: 145, text: 'WE ARE STILL HERE!', note: 'response' },
-  { time: 170, text: 'HEY! HEY! HEY!', note: 'final lift' },
-  { time: 194, text: 'See you next time', note: 'soft landing' },
+const setlist: Track[] = [
+  {
+    id: 'paper-moons',
+    number: 1,
+    title: 'PAPER MOONS',
+    artist: 'The Afterhours',
+    section: 'ACT 1',
+    duration: '3:32',
+    lyrics: lines([
+      [0, 'Lights down, breathe in', 'opening'],
+      [12, 'We found a little fire in the quiet', 'verse 01'],
+      [27, 'Hands up, let the whole room know', 'pre-chorus', 'singalong'],
+      [41, 'We are louder when we sing together', 'chorus', 'singalong'],
+      [57, 'Stay with me through the afterglow', 'chorus'],
+      [75, 'Every heartbeat keeps the rhythm', 'verse 02'],
+      [91, 'Call my name, I will answer back', 'build', 'singalong'],
+      [107, 'This is our night, our little orbit', 'bridge'],
+      [126, 'One more time, make the ceiling shake', 'final chorus', 'singalong'],
+      [145, 'Hold the moment, do not let it fade', 'final chorus'],
+      [170, 'Lights up, we are still here', 'outro'],
+      [194, 'See you at the next replay', 'outro'],
+    ]),
+    fanchant: lines([
+      [0, 'Settle in', 'all fans / soft'],
+      [12, 'HEY! HEY!', 'count it in', 'chant'],
+      [27, 'Hands up! Hands up!', 'call', 'chant'],
+      [41, 'WE SING TOGETHER!', 'response', 'chant'],
+      [57, 'STAY! STAY! STAY!', 'response', 'chant'],
+      [75, 'Oh-oh-oh-oh', 'keep the pulse', 'chant'],
+      [91, 'Your name! Your name!', 'call and answer', 'chant'],
+      [107, 'THIS IS OUR NIGHT!', 'all fans / loud', 'chant'],
+      [126, 'ONE MORE TIME!', 'call', 'chant'],
+      [145, 'WE ARE STILL HERE!', 'response', 'chant'],
+      [170, 'HEY! HEY! HEY!', 'final lift', 'chant'],
+      [194, 'See you next time', 'soft landing'],
+    ]),
+  },
+  {
+    id: 'neon-static',
+    number: 2,
+    title: 'NEON STATIC',
+    artist: 'The Afterhours',
+    section: 'ACT 1',
+    duration: '3:46',
+    lyrics: lines([
+      [0, 'A red light flickers on the avenue', 'intro'],
+      [15, 'We keep the signal warm between us', 'verse'],
+      [34, 'If you hear me, let the whole room glow', 'pre-chorus', 'singalong'],
+      [52, 'No sleep, no silence, no turning back', 'chorus', 'singalong'],
+      [78, 'Electric hearts in a paper city', 'verse 02'],
+      [101, 'Say it once, then say it louder', 'bridge', 'singalong'],
+      [126, 'Neon static in our hands tonight', 'final chorus', 'singalong'],
+      [164, 'Leave the radio on when we go', 'outro'],
+    ]),
+    fanchant: lines([
+      [0, 'After-hours!', 'opening call', 'chant'],
+      [15, 'HEY! HEY!', 'count it in', 'chant'],
+      [34, 'LET IT GLOW!', 'response', 'chant'],
+      [52, 'NO SLEEP! NO SLEEP!', 'all fans', 'chant'],
+      [101, 'LOUDER! LOUDER!', 'call and answer', 'chant'],
+      [126, 'NEON STATIC!', 'final lift', 'chant'],
+      [164, 'HEY! HEY! HEY!', 'close', 'chant'],
+    ]),
+  },
+  {
+    id: 'honey-weather',
+    number: 3,
+    title: 'HONEY WEATHER',
+    artist: 'The Afterhours',
+    section: 'ACT 1',
+    duration: '4:08',
+    lyrics: lines([
+      [0, 'Warm rain on the roof of the taxi', 'opening'],
+      [21, 'You draw a sun into the window', 'verse'],
+      [44, 'Keep that little summer in your chest', 'chorus', 'singalong'],
+      [72, 'We can make a season out of nothing', 'chorus'],
+      [104, 'Every street is turning gold', 'bridge', 'singalong'],
+      [139, 'Honey weather, stay a little longer', 'final chorus', 'singalong'],
+      [182, 'Let the city cool around us', 'outro'],
+      [217, 'We will meet where the light begins', 'outro'],
+    ]),
+    fanchant: lines([
+      [0, 'Oh-oh-oh', 'soft opening', 'chant'],
+      [44, 'STAY! STAY!', 'response', 'chant'],
+      [72, 'MAKE IT GOLD!', 'call', 'chant'],
+      [104, 'TURN IT UP!', 'all fans', 'chant'],
+      [139, 'HONEY WEATHER!', 'final response', 'chant'],
+      [182, 'HEY! HEY!', 'close', 'chant'],
+    ]),
+  },
+  {
+    id: 'slow-burn',
+    number: 4,
+    title: 'SLOW BURN',
+    artist: 'The Afterhours',
+    section: 'ACT 1',
+    duration: '3:58',
+    lyrics: lines([
+      [0, 'No grand entrance, just a spark', 'intro'],
+      [19, 'We learned the shape of being honest', 'verse'],
+      [46, 'Take your time, I am right here', 'chorus', 'singalong'],
+      [83, 'A slow burn is still a fire', 'chorus'],
+      [119, 'When the drums return, we rise', 'bridge', 'singalong'],
+      [153, 'Take your time, I am right here', 'final chorus', 'singalong'],
+      [191, 'Leave one window open', 'outro'],
+    ]),
+    fanchant: lines([
+      [0, 'Slow burn!', 'opening', 'chant'],
+      [46, 'RIGHT HERE! RIGHT HERE!', 'response', 'chant'],
+      [83, 'STILL A FIRE!', 'call', 'chant'],
+      [119, 'WE RISE!', 'all fans', 'chant'],
+      [153, 'RIGHT HERE! RIGHT HERE!', 'final response', 'chant'],
+    ]),
+  },
+  {
+    id: 'north-star',
+    number: 5,
+    title: 'NORTH STAR',
+    artist: 'The Afterhours',
+    section: 'ACT 2',
+    duration: '4:21',
+    lyrics: lines([
+      [0, 'The house lights fade into the blue', 'opening'],
+      [22, 'Every face becomes a constellation', 'verse'],
+      [49, 'Find me where the north star bends', 'chorus', 'singalong'],
+      [83, 'We are not lost, we are becoming', 'chorus'],
+      [122, 'Turn the doubt into a drumbeat', 'bridge', 'singalong'],
+      [161, 'Find me where the north star bends', 'final chorus', 'singalong'],
+      [204, 'Keep a little light for tomorrow', 'outro'],
+    ]),
+    fanchant: lines([
+      [0, 'North star!', 'opening', 'chant'],
+      [49, 'FIND US! FIND US!', 'response', 'chant'],
+      [83, 'WE ARE BECOMING!', 'all fans', 'chant'],
+      [122, 'TURN IT UP!', 'call', 'chant'],
+      [161, 'NORTH STAR!', 'final lift', 'chant'],
+    ]),
+  },
+  {
+    id: 'golden-hour',
+    number: 6,
+    title: 'GOLDEN HOUR',
+    artist: 'The Afterhours',
+    section: 'ACT 2',
+    duration: '3:39',
+    lyrics: lines([
+      [0, 'Save a seat beside the window', 'intro'],
+      [18, 'We are glowing at the edges', 'verse'],
+      [39, 'Sing it like the morning knows', 'chorus', 'singalong'],
+      [66, 'Golden hour, do not let it go', 'chorus', 'singalong'],
+      [101, 'A little louder for the back row', 'bridge', 'singalong'],
+      [133, 'Golden hour, do not let it go', 'final chorus'],
+      [170, 'We leave the lights on', 'outro'],
+    ]),
+    fanchant: lines([
+      [0, 'Hey, hey', 'soft start', 'chant'],
+      [39, 'SING IT OUT!', 'response', 'chant'],
+      [66, 'GOLDEN HOUR!', 'all fans', 'chant'],
+      [101, 'BACK ROW! BACK ROW!', 'call', 'chant'],
+      [133, 'DO NOT LET IT GO!', 'final response', 'chant'],
+    ]),
+  },
+  {
+    id: 'open-water',
+    number: 7,
+    title: 'OPEN WATER',
+    artist: 'The Afterhours',
+    section: 'ACT 2',
+    duration: '4:02',
+    lyrics: lines([
+      [0, 'We made a map from the mistakes', 'verse 01'],
+      [25, 'The horizon is a moving line', 'verse 02'],
+      [51, 'Open water, open hands', 'chorus', 'singalong'],
+      [86, 'Let the undertow take what it can', 'chorus'],
+      [124, 'I can hear you from the shore', 'bridge', 'singalong'],
+      [159, 'Open water, open hands', 'final chorus', 'singalong'],
+      [198, 'The horizon is a moving line', 'outro'],
+    ]),
+    fanchant: lines([
+      [0, 'Open water!', 'opening', 'chant'],
+      [51, 'OPEN HANDS!', 'response', 'chant'],
+      [86, 'LET IT GO!', 'call', 'chant'],
+      [124, 'FROM THE SHORE!', 'all fans', 'chant'],
+      [159, 'OPEN WATER!', 'final response', 'chant'],
+    ]),
+  },
+  {
+    id: 'last-train',
+    number: 8,
+    title: 'LAST TRAIN HOME',
+    artist: 'The Afterhours',
+    section: 'ACT 2',
+    duration: '4:17',
+    lyrics: lines([
+      [0, 'Midnight gathers in the station', 'opening'],
+      [20, 'We are laughing like we made it', 'verse'],
+      [48, 'Take the last train home with me', 'chorus', 'singalong'],
+      [82, 'Leave the ache beneath the city', 'chorus'],
+      [116, 'If we miss it, we can walk', 'bridge', 'singalong'],
+      [151, 'Take the last train home with me', 'final chorus', 'singalong'],
+      [205, 'Same moon, different street', 'outro'],
+    ]),
+    fanchant: lines([
+      [0, 'Last train!', 'opening', 'chant'],
+      [48, 'HOME WITH ME!', 'response', 'chant'],
+      [82, 'LEAVE IT BEHIND!', 'call', 'chant'],
+      [116, 'WE CAN WALK!', 'all fans', 'chant'],
+      [151, 'LAST TRAIN HOME!', 'final response', 'chant'],
+    ]),
+  },
+  {
+    id: 'paper-crown',
+    number: 9,
+    title: 'PAPER CROWN',
+    artist: 'The Afterhours',
+    section: 'ENCORE',
+    duration: '3:51',
+    lyrics: lines([
+      [0, 'Back on stage, shoes in our hands', 'encore'],
+      [18, 'You kept the room alive for us', 'verse'],
+      [43, 'Wear the night like a paper crown', 'chorus', 'singalong'],
+      [79, 'We are still here, still around', 'chorus', 'singalong'],
+      [118, 'Let the confetti find the floor', 'bridge'],
+      [151, 'Wear the night like a paper crown', 'final chorus', 'singalong'],
+      [189, 'One more song before goodbye', 'outro'],
+    ]),
+    fanchant: lines([
+      [0, 'ONE MORE SONG!', 'encore call', 'chant'],
+      [43, 'PAPER CROWN!', 'response', 'chant'],
+      [79, 'STILL HERE! STILL HERE!', 'all fans', 'chant'],
+      [118, 'LET IT FALL!', 'call', 'chant'],
+      [151, 'PAPER CROWN!', 'final response', 'chant'],
+    ]),
+  },
+  {
+    id: 'home-light',
+    number: 10,
+    title: 'HOME LIGHT',
+    artist: 'The Afterhours',
+    section: 'ENCORE',
+    duration: '4:30',
+    lyrics: lines([
+      [0, 'The room is bright enough to see you', 'opening'],
+      [24, 'Every little voice becomes a choir', 'verse', 'singalong'],
+      [55, 'Keep the home light burning', 'chorus', 'singalong'],
+      [94, 'We will carry what we came here for', 'chorus'],
+      [133, 'If you get lost, look for the windows', 'bridge', 'singalong'],
+      [176, 'Keep the home light burning', 'final chorus', 'singalong'],
+      [220, 'Goodnight, goodnight, goodnight', 'close'],
+    ]),
+    fanchant: lines([
+      [0, 'HEY! HEY!', 'opening', 'chant'],
+      [55, 'HOME LIGHT!', 'response', 'chant'],
+      [94, 'CARRY IT HOME!', 'all fans', 'chant'],
+      [133, 'LOOK FOR THE WINDOWS!', 'call', 'chant'],
+      [176, 'HOME LIGHT!', 'final response', 'chant'],
+      [220, 'GOODNIGHT!', 'close', 'chant'],
+    ]),
+  },
 ];
 
 function getVideoId(value: string) {
@@ -118,6 +364,7 @@ function Home() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [urlError, setUrlError] = useState('');
   const [mode, setMode] = useState<Mode>('lyrics');
+  const [selectedId, setSelectedId] = useState(setlist[0].id);
   const [isPlaying, setIsPlaying] = useState(false);
   const [playbackSeconds, setPlaybackSeconds] = useState(0);
   const [duration, setDuration] = useState(FALLBACK_DURATION);
@@ -131,7 +378,8 @@ function Home() {
   const fallbackTimerRef = useRef<number | null>(null);
   const activeLineRef = useRef<HTMLButtonElement | null>(null);
 
-  const activeLines = mode === 'lyrics' ? lyrics : fanchant;
+  const selectedTrack = useMemo(() => setlist.find((track) => track.id === selectedId) ?? setlist[0], [selectedId]);
+  const activeLines = mode === 'lyrics' ? selectedTrack.lyrics : selectedTrack.fanchant;
   const activeIndex = useMemo(() => {
     let index = 0;
     activeLines.forEach((line, lineIndex) => {
@@ -176,7 +424,7 @@ function Home() {
           const state = window.YT?.PlayerState;
           if (event.data === state?.PLAYING) setIsPlaying(true);
           if (event.data === state?.PAUSED || event.data === state?.ENDED) setIsPlaying(false);
-          if (event.data === state?.ENDED) setPlaybackSeconds(duration);
+          if (event.data === state?.ENDED) setPlaybackSeconds(playerRef.current?.getDuration?.() ?? FALLBACK_DURATION);
         },
       },
     });
@@ -206,7 +454,13 @@ function Home() {
 
   useEffect(() => {
     activeLineRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  }, [activeIndex, mode]);
+  }, [activeIndex, mode, selectedId]);
+
+  const chooseTrack = (track: Track) => {
+    setSelectedId(track.id);
+    setPlaybackSeconds(0);
+    setMode('lyrics');
+  };
 
   const togglePlayback = useCallback(() => {
     if (playerRef.current) {
@@ -223,11 +477,9 @@ function Home() {
     if (playerRef.current) playerRef.current.seekTo(seconds, true);
   }, []);
 
-  const handleProgressChange = (event: ChangeEvent<HTMLInputElement>) => {
-    seekTo(Number(event.target.value));
-  };
+  const handleProgressChange = (event: ChangeEvent<HTMLInputElement>) => seekTo(Number(event.target.value));
 
-  const handleLoadVideo = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleLoadVideo = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const nextId = getVideoId(urlDraft);
     if (!nextId) {
@@ -246,9 +498,8 @@ function Home() {
   };
 
   const copySessionLink = async () => {
-    const sessionUrl = window.location.href;
     try {
-      await navigator.clipboard.writeText(sessionUrl);
+      await navigator.clipboard.writeText(window.location.href);
       setCopied(true);
       window.setTimeout(() => setCopied(false), 1800);
     } catch {
@@ -256,89 +507,117 @@ function Home() {
     }
   };
 
+  const toggleMute = () => {
+    if (playerRef.current) {
+      if (isMuted) playerRef.current.unMuteVideo?.();
+      else playerRef.current.muteVideo?.();
+    }
+    setIsMuted((muted) => !muted);
+  };
+
+  const tracksBySection = (section: Track['section']) => setlist.filter((track) => track.section === section);
+
   return (
     <div className="studio-shell">
       <header className="studio-topbar">
         <div className="brand-lockup" data-testid="display-brand">
           <div className="brand-mark" aria-hidden="true">VL</div>
           <span className="brand-name">Video Lyrics Studio</span>
-          <span className="brand-kicker">room 01</span>
+          <span className="brand-kicker">live setlist companion</span>
         </div>
         <div className="topbar-status" data-testid="status-session">
           <span className="status-dot" aria-hidden="true" />
-          session ready
+          room ready / {apiReady ? 'player synced' : 'demo clock'}
         </div>
-        <div className="topbar-actions">
-          <button
-            className="share-button"
-            data-testid="button-share-session"
-            onClick={copySessionLink}
-            type="button"
-          >
-            {copied ? <Check size={14} /> : <Share2 size={14} />}
-            {copied ? 'Copied' : 'Share room'}
-          </button>
-        </div>
+        <button className="share-button" data-testid="button-share-session" onClick={copySessionLink} type="button">
+          {copied ? <Check size={14} /> : <Share2 size={14} />}
+          {copied ? 'Copied' : 'Share room'}
+        </button>
       </header>
 
       <main className="app-main">
         <section className="room-heading" aria-labelledby="page-title">
           <div>
-            <div className="eyebrow" data-testid="text-room-kicker">private concert room / fan practice mode</div>
-            <h1 id="page-title">Sing it like <em>you were there.</em></h1>
+            <div className="eyebrow" data-testid="text-room-kicker">the afterhours / summer room tour</div>
+            <h1 id="page-title">The room sings <em>back.</em></h1>
           </div>
-          <p className="heading-note">
-            A focused replay space for the lyric, the breath, and the exact moment the room sings back.
-          </p>
+          <div className="heading-note">
+            <span className="heading-rule" />
+            <p>Follow the set. Catch the cue.<br />Keep the whole room in time.</p>
+          </div>
         </section>
 
-        <section className="live-layout" aria-label="Performance player and synchronized words">
-          <div>
+        <section className="legend-strip" aria-label="Transcript color legend">
+          <span className="legend-title">READ THE ROOM</span>
+          <span className="legend-item"><i className="legend-swatch chant-swatch" /> red / fanchant</span>
+          <span className="legend-item"><i className="legend-swatch sing-swatch" /> green / sing-along</span>
+          <span className="legend-item"><i className="legend-swatch lyric-swatch" /> black / lyric</span>
+          <span className="legend-track"><ListMusic size={13} /> {setlist.length} cues in tonight&apos;s set</span>
+        </section>
+
+        <section className="workspace" aria-label="Setlist, performance player, and synchronized transcript">
+          <aside className="setlist-panel" data-testid="panel-setlist">
+            <div className="panel-cap">
+              <span className="eyebrow">tonight&apos;s running order</span>
+              <span className="set-count">10 tracks</span>
+            </div>
+            <h2 className="setlist-title">SUMMER<br /><span>ROOM TOUR</span></h2>
+            <p className="setlist-intro">Choose a song to load its cues into the room.</p>
+            <div className="setlist-sections">
+              {(['ACT 1', 'ACT 2', 'ENCORE'] as const).map((section) => (
+                <section className="set-section" key={section} aria-labelledby={`heading-${section.replace(' ', '-')}`}>
+                  <div className="section-heading" id={`heading-${section.replace(' ', '-')}`}>
+                    <span>{section}</span><i />
+                  </div>
+                  <div className="set-rows">
+                    {tracksBySection(section).map((track) => (
+                      <button
+                        className={`set-row ${selectedId === track.id ? 'selected' : ''}`}
+                        data-testid={`button-setlist-${track.id}`}
+                        key={track.id}
+                        onClick={() => chooseTrack(track)}
+                        type="button"
+                      >
+                        <span className="set-number">{String(track.number).padStart(2, '0')}</span>
+                        <span className="set-song">{track.title}</span>
+                        <span className="set-duration">{track.duration}</span>
+                      </button>
+                    ))}
+                  </div>
+                </section>
+              ))}
+            </div>
+          </aside>
+
+          <div className="performance-column">
             <article className="stage-card" data-testid="card-performance">
               <div className="video-wrap">
                 <div className="player-frame" ref={playerHostRef}>
                   {!apiReady && (
                     <iframe
-                      title="Sample YouTube performance"
+                      title={`${selectedTrack.title} YouTube performance`}
                       src={`https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1`}
                       allow="autoplay; encrypted-media; picture-in-picture"
                       allowFullScreen
                     />
                   )}
                 </div>
-                {!apiReady && !apiFailed && (
-                  <div className="video-loading" data-testid="status-video-loading">connecting to the stage</div>
-                )}
+                {!apiReady && !apiFailed && <div className="video-loading" data-testid="status-video-loading">connecting to the stage</div>}
                 <div className="video-overlay-label" data-testid="status-video-source">
                   <span className="video-signal"><Radio size={11} /></span>
-                  sample performance / {apiReady ? 'live sync' : 'demo sync'}
+                  {apiReady ? 'youtube / live sync' : 'youtube / demo sync'}
                 </div>
+                <div className="video-track-stamp"><span>{String(selectedTrack.number).padStart(2, '0')}</span> {selectedTrack.title}</div>
               </div>
               <div className="stage-controls">
                 <div className="progress-track">
                   <span className="timestamp" data-testid="text-current-time">{formatTime(playbackSeconds)}</span>
-                  <input
-                    aria-label="Seek performance"
-                    className="progress-range"
-                    data-testid="input-seek"
-                    max={duration}
-                    min="0"
-                    onChange={handleProgressChange}
-                    style={{ '--progress': `${progress}%` } as CSSProperties}
-                    type="range"
-                    value={playbackSeconds}
-                  />
+                  <input aria-label="Seek performance" className="progress-range" data-testid="input-seek" max={duration} min="0" onChange={handleProgressChange} style={{ '--progress': `${progress}%` } as CSSProperties} type="range" value={playbackSeconds} />
                   <span className="timestamp" data-testid="text-duration">{formatTime(duration)}</span>
                 </div>
                 <div className="control-row">
                   <div className="control-left">
-                    <button
-                      aria-label={isPlaying ? 'Pause performance' : 'Play performance'}
-                      className="play-button"
-                      data-testid="button-play-pause"
-                      onClick={togglePlayback}
-                      type="button"
-                    >
+                    <button aria-label={isPlaying ? 'Pause performance' : 'Play performance'} className="play-button" data-testid="button-play-pause" onClick={togglePlayback} type="button">
                       {isPlaying ? <Pause size={17} fill="currentColor" /> : <Play size={17} fill="currentColor" />}
                     </button>
                     <div>
@@ -347,15 +626,9 @@ function Home() {
                     </div>
                   </div>
                   <div className="control-right">
-                    <span className="control-meta">{apiFailed && !apiReady ? 'API unavailable' : 'sample video'}</span>
-                    <button
-                      aria-label={isMuted ? 'Unmute' : 'Mute'}
-                      className="icon-button"
-                      data-testid="button-toggle-mute"
-                      onClick={() => setIsMuted((muted) => !muted)}
-                      type="button"
-                    >
-                      <Volume2 size={15} style={{ opacity: isMuted ? 0.4 : 1 }} />
+                    <span className="control-meta">{apiFailed && !apiReady ? 'API unavailable' : 'sample performance'}</span>
+                    <button aria-label={isMuted ? 'Unmute' : 'Mute'} className="icon-button" data-testid="button-toggle-mute" onClick={toggleMute} type="button">
+                      {isMuted ? <VolumeX size={15} /> : <Volume2 size={15} />}
                     </button>
                     <button aria-label="Expand player" className="icon-button" data-testid="button-expand-player" onClick={() => document.querySelector('.video-wrap')?.requestFullscreen?.()} type="button">
                       <Maximize2 size={15} />
@@ -365,20 +638,15 @@ function Home() {
               </div>
               <div className="song-meta">
                 <div className="track-info">
-                  <h2 className="track-title" data-testid="text-track-title">Night Bloom — live room take</h2>
-                  <p className="track-artist" data-testid="text-track-artist">sample performance · sync demo by Video Lyrics Studio</p>
+                  <span className="track-kicker">NOW PLAYING / TRACK {String(selectedTrack.number).padStart(2, '0')}</span>
+                  <h2 className="track-title" data-testid="text-track-title">{selectedTrack.title}</h2>
+                  <p className="track-artist" data-testid="text-track-artist">{selectedTrack.artist} · summer room tour</p>
                 </div>
                 <div className="track-tags">
-                  <span className="tag tag-highlight">practice cut</span>
-                  <span className="tag">3:32</span>
-                  <button
-                    aria-label={isLiked ? 'Remove from saved rooms' : 'Save this room'}
-                    className="icon-button"
-                    data-testid="button-save-room"
-                    onClick={() => setIsLiked((liked) => !liked)}
-                    type="button"
-                  >
-                    <Heart size={15} fill={isLiked ? 'currentColor' : 'none'} color={isLiked ? 'hsl(335 83% 67%)' : 'currentColor'} />
+                  <span className="tag tag-highlight">{selectedTrack.section}</span>
+                  <span className="tag">{selectedTrack.duration}</span>
+                  <button aria-label={isLiked ? 'Remove from saved rooms' : 'Save this room'} className={`icon-button save-button ${isLiked ? 'saved' : ''}`} data-testid="button-save-room" onClick={() => setIsLiked((liked) => !liked)} type="button">
+                    <Heart size={15} fill={isLiked ? 'currentColor' : 'none'} />
                   </button>
                 </div>
               </div>
@@ -387,25 +655,23 @@ function Home() {
             <div className="under-grid">
               <div className="info-panel" data-testid="panel-sync-info">
                 <div className="info-copy">
-                  <div className="info-glyph"><Sparkles size={16} /></div>
+                  <div className="info-glyph"><Radio size={15} /></div>
                   <div>
-                    <p className="info-title">Words follow the moment</p>
-                    <p className="info-description">Tap any line to jump there. The room will keep your place.</p>
+                    <p className="info-title">Cues follow the performance</p>
+                    <p className="info-description">Tap any line to jump there. The room keeps your place.</p>
                   </div>
                 </div>
-                <div className="progress-caption" data-testid="text-progress-caption">
-                  {Math.round(progress)}%<br />through the set
-                </div>
+                <div className="progress-caption" data-testid="text-progress-caption">{Math.round(progress)}%<br />through the set</div>
               </div>
               <button className="info-panel change-button" data-testid="button-change-video" onClick={() => { setUrlDraft(`https://youtu.be/${videoId}`); setIsModalOpen(true); }} type="button">
                 <div className="info-copy">
-                  <div className="info-glyph"><Link2 size={16} /></div>
+                  <div className="info-glyph link-glyph"><Link2 size={15} /></div>
                   <div>
                     <p className="info-title">Bring your own performance</p>
-                    <p className="info-description">Swap the sample for a YouTube URL.</p>
+                    <p className="info-description">Swap in any YouTube URL.</p>
                   </div>
                 </div>
-                <ChevronDown size={16} style={{ transform: 'rotate(-90deg)' }} />
+                <ChevronDown size={15} style={{ transform: 'rotate(-90deg)' }} />
               </button>
             </div>
           </div>
@@ -414,36 +680,25 @@ function Home() {
             <div className="lyrics-head">
               <div className="lyrics-headline">
                 <div>
-                  <div className="eyebrow">live transcript</div>
-                  <h2 className="lyrics-title">{mode === 'lyrics' ? 'Follow the lyric' : 'Join the room'}</h2>
+                  <div className="eyebrow">live transcript / {String(selectedTrack.number).padStart(2, '0')}</div>
+                  <h2 className="lyrics-title">{mode === 'lyrics' ? 'Sing the line.' : 'Raise the room.'}</h2>
                 </div>
-                <div className="sync-status" data-testid="status-sync">
-                  <span className="live-dot" aria-hidden="true" />
-                  {apiReady ? 'synced' : 'demo sync'}
-                </div>
+                <div className="sync-status" data-testid="status-sync"><span className="live-dot" aria-hidden="true" />{apiReady ? 'synced' : 'demo sync'}</div>
               </div>
+              <div className="transcript-track">{selectedTrack.title} <span>·</span> {selectedTrack.artist}</div>
               <div className="mode-switch" role="tablist" aria-label="Transcript mode">
-                <button className={`mode-button ${mode === 'lyrics' ? 'active' : ''}`} data-testid="button-mode-lyrics" onClick={() => setMode('lyrics')} role="tab" aria-selected={mode === 'lyrics'} type="button">Lyrics</button>
-                <button className={`mode-button ${mode === 'fanchant' ? 'active' : ''}`} data-testid="button-mode-fanchant" onClick={() => setMode('fanchant')} role="tab" aria-selected={mode === 'fanchant'} type="button">Fanchant</button>
+                <button className={`mode-button ${mode === 'lyrics' ? 'active' : ''}`} data-testid="button-mode-lyrics" onClick={() => setMode('lyrics')} role="tab" aria-selected={mode === 'lyrics'} type="button">LYRIC</button>
+                <button className={`mode-button ${mode === 'fanchant' ? 'active' : ''}`} data-testid="button-mode-fanchant" onClick={() => setMode('fanchant')} role="tab" aria-selected={mode === 'fanchant'} type="button">FANCHANT</button>
               </div>
             </div>
             <div className={`lyric-scroll ${mode === 'fanchant' ? 'chant' : ''}`} data-testid={`list-${mode}`}>
               {activeLines.map((line, index) => {
                 const isActive = index === activeIndex;
+                const tone = mode === 'fanchant' ? 'chant' : line.tone ?? 'lyric';
                 return (
-                  <button
-                    className={`lyric-line ${isActive ? 'active' : ''} ${mode === 'fanchant' ? 'chant' : ''}`}
-                    data-testid={`button-${mode}-line-${index}`}
-                    key={`${mode}-${line.time}`}
-                    onClick={() => seekTo(line.time)}
-                    ref={isActive ? activeLineRef : undefined}
-                    type="button"
-                  >
+                  <button className={`lyric-line tone-${tone} ${isActive ? 'active' : ''}`} data-testid={`button-${mode}-line-${index}`} key={`${selectedTrack.id}-${mode}-${line.time}`} onClick={() => seekTo(line.time)} ref={isActive ? activeLineRef : undefined} type="button">
                     <span className="line-time">{formatTime(line.time)}</span>
-                    <span className="line-content">
-                      <span className="line-text">{line.text}</span>
-                      {line.note && <span className="line-note">{line.note}</span>}
-                    </span>
+                    <span className="line-content"><span className="line-text">{line.text}</span>{line.note && <span className="line-note">{line.note}</span>}</span>
                     <span className="line-pulse" aria-hidden="true" />
                   </button>
                 );
@@ -457,23 +712,12 @@ function Home() {
         <div className="modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setIsModalOpen(false); }}>
           <form className="modal-card" onSubmit={handleLoadVideo}>
             <div className="modal-top">
-              <div>
-                <div className="eyebrow">change the stage</div>
-                <h2 className="modal-title">Load a performance</h2>
-              </div>
+              <div><div className="eyebrow">change the performance</div><h2 className="modal-title">Load a YouTube link</h2></div>
               <button aria-label="Close video dialog" className="icon-button" data-testid="button-close-video-dialog" onClick={() => setIsModalOpen(false)} type="button"><X size={16} /></button>
             </div>
             <p className="modal-copy">Use a YouTube watch link, short link, embed link, or video ID. Your room state stays in the URL for easy sharing.</p>
             <label className="mono-label" htmlFor="video-url">youtube url</label>
-            <input
-              autoFocus
-              className="url-input"
-              data-testid="input-video-url"
-              id="video-url"
-              onChange={(event) => setUrlDraft(event.target.value)}
-              placeholder="https://www.youtube.com/watch?v=..."
-              value={urlDraft}
-            />
+            <input autoFocus className="url-input" data-testid="input-video-url" id="video-url" onChange={(event) => setUrlDraft(event.target.value)} placeholder="https://www.youtube.com/watch?v=..." value={urlDraft} />
             {urlError && <p className="input-error" data-testid="status-video-error">{urlError}</p>}
             <div className="modal-actions">
               <button className="secondary-action" data-testid="button-cancel-video" onClick={() => setIsModalOpen(false)} type="button">Cancel</button>
@@ -482,19 +726,13 @@ function Home() {
           </form>
         </div>
       )}
-
       {copied && <div className="toast-note" data-testid="status-copied">Room link copied</div>}
     </div>
   );
 }
 
 function Router() {
-  return (
-    <Switch>
-      <Route path="/" component={Home} />
-      <Route component={NotFound} />
-    </Switch>
-  );
+  return <Switch><Route path="/" component={Home} /><Route component={NotFound} /></Switch>;
 }
 
 function RoutedErrorBoundary({ children }: { children: ReactNode }) {
@@ -506,9 +744,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, '')}>
-          <RoutedErrorBoundary>
-            <Router />
-          </RoutedErrorBoundary>
+          <RoutedErrorBoundary><Router /></RoutedErrorBoundary>
         </WouterRouter>
         <Toaster />
       </TooltipProvider>
