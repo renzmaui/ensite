@@ -863,7 +863,7 @@ button {
 }
 
 .lyric-line.active {
-  background: var(--yellow);
+  background: var(--red-soft);
   border-color: var(--ink);
   transform: translateX(4px);
 }
