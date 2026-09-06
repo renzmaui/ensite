@@ -1,0 +1,101 @@
+My code has the following error:
+
+File '/home/runner/workspace/node_modules/.pnpm/@types+react@19.2.18/node_modules/@types/react/index.d.ts' is not a module.
+
+I have the following code in artifacts/video-lyrics/src/App.tsx at lines 9 to 10:
+
+} from "react";
+
+Please debug the issue and help me fix it.
+
+
+
+
+My code has the following error:
+
+Parameter 'lyric' implicitly has an 'any' type.
+
+I have the following code in artifacts/video-lyrics/src/App.tsx at lines 494 to 495:
+
+      (lyric, lyricIndex) => {
+
+Please debug the issue and help me fix it.
+
+
+
+
+My code has the following error:
+
+Parameter 'lyricIndex' implicitly has an 'any' type.
+
+I have the following code in artifacts/video-lyrics/src/App.tsx at lines 494 to 495:
+
+      (lyric, lyricIndex) => {
+
+Please debug the issue and help me fix it.
+
+
+
+
+My code has the following error:
+
+Parameter 'chant' implicitly has an 'any' type.
+
+I have the following code in artifacts/video-lyrics/src/App.tsx at lines 497 to 498:
+
+            (chant) => {
+
+Please debug the issue and help me fix it.
+
+
+
+
+My code has the following error:
+
+Parameter 'current' implicitly has an 'any' type.
+
+I have the following code in artifacts/video-lyrics/src/App.tsx at lines 981 to 982:
+
+            (current) => {
+
+Please debug the issue and help me fix it.
+
+
+
+
+My code has the following error:
+
+Parameter 'playing' implicitly has an 'any' type.
+
+I have the following code in artifacts/video-lyrics/src/App.tsx at lines 1087 to 1088:
+
+          (playing) =>
+
+Please debug the issue and help me fix it.
+
+
+
+
+My code has the following error:
+
+Parameter 'muted' implicitly has an 'any' type.
+
+I have the following code in artifacts/video-lyrics/src/App.tsx at lines 1231 to 1232:
+
+      (muted) => !muted,
+
+Please debug the issue and help me fix it.
+
+
+
+
+My code has the following error:
+
+JSX element implicitly has type 'any' because no interface 'JSX.IntrinsicElements' exists.
+
+I have the following code in artifacts/video-lyrics/src/App.tsx at lines 1246 to 1247:
+
+    <div className="studio-shell">
+
+Please debug the issue and help me fix it.
+
