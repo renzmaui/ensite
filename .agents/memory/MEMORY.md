@@ -1,1 +1,2 @@
 - [Approved video lyrics design](approved-video-lyrics-design.md) — Use Video Lyrics Studio as the active design; Current Video Lyrics Studio is reference-only.
+- [Typecheck versus editor diagnostics](typecheck-vs-editor-diagnostics.md) — Trust the package typecheck when stale LSP errors disagree after dependency repair.

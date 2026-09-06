@@ -1,4 +1,3 @@
-// React JSX types are supplied by the workspace React type packages.
 import {
   type ChangeEvent,
   type CSSProperties,
