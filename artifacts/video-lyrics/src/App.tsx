@@ -2,14 +2,13 @@ import {
   type ChangeEvent,
   type CSSProperties,
   type FormEvent,
-  type ReactNode,
   useCallback,
   useEffect,
   useMemo,
   useRef,
   useState,
 } from "react";
-import { Route, Switch, Router as WouterRouter } from "wouter";
+
 import {
   Check,
   ChevronDown,
@@ -25,11 +24,6 @@ import {
   VolumeX,
   X,
 } from "lucide-react";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ErrorBoundary } from "@/components/error-boundary";
-import { Toaster } from "@/components/ui/toaster";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import NotFound from "@/pages/not-found";
 
 type LineTone = "singalong" | "chant" | "lyric";
 
@@ -53,17 +47,27 @@ type Track = {
   type?: string;
   section: string;
   duration: string;
+  videoId: string;
   lyrics: TimedLine[];
   fanchant: TimedLine[];
 };
 
+type YouTubePlayerEvent = {
+  data: number;
+};
+
 type YouTubePlayer = {
-  destroy: () => void;
-  getCurrentTime: () => number;
-  getDuration: () => number;
-  pauseVideo: () => void;
-  playVideo: () => void;
-  seekTo: (seconds: number, allowSeekAhead: boolean) => void;
+  destroy?: () => void;
+  getCurrentTime?: () => number;
+  getDuration?: () => number;
+  pauseVideo?: () => void;
+  playVideo?: () => void;
+  seekTo?: (
+    seconds: number,
+    allowSeekAhead: boolean,
+  ) => void;
+  loadVideoById?: (videoId: string) => void;
+  cueVideoById?: (videoId: string) => void;
   muteVideo?: () => void;
   unMuteVideo?: () => void;
 };
@@ -78,7 +82,9 @@ declare global {
           playerVars?: Record<string, number | string>;
           events?: {
             onReady?: () => void;
-            onStateChange?: (event: { data: number }) => void;
+            onStateChange?: (
+              event: YouTubePlayerEvent,
+            ) => void;
           };
         },
       ) => YouTubePlayer;
@@ -87,6 +93,7 @@ declare global {
         PLAYING: number;
         PAUSED: number;
         ENDED: number;
+        CUED: number;
       };
     };
 
@@ -94,23 +101,29 @@ declare global {
   }
 }
 
-const queryClient = new QueryClient();
-
 const FALLBACK_DURATION = 212;
-
+const INITIAL_VIDEO_ID = "MT-4Bk1Lw8g";
 const INITIAL_URL =
-  "https://www.youtube.com/watch?v=MT-4Bk1Lw8g";
+  "https://www.youtube.com/watch?v=" +
+  INITIAL_VIDEO_ID;
 
 const lines = (
-  texts: Array<[number, string, string?, LineTone?]>,
-): TimedLine[] =>
-  texts.map(([time, text, note, tone]) => ({
-    time,
-    text,
-    note,
-    tone,
-  }));
+  texts: Array<
+    [number, string, string?, LineTone?]
+  >,
+): TimedLine[] => {
+  return texts.map(
+    ([time, text, note, tone]) => ({
+      time,
+      text,
+      note,
+      tone,
+    }),
+  );
+};
 
+// Add each performance as another track below. Put its YouTube video ID in
+// `videoId`; selecting that track automatically loads its matching video.
 const setlist: Track[] = [
   {
     id: "BLOODY PARADISE",
@@ -120,6 +133,7 @@ const setlist: Track[] = [
     type: "OFFICIAL MUSIC VIDEO",
     section: "SONGS",
     duration: "2:14",
+    videoId: "MT-4Bk1Lw8g",
 
     lyrics: lines([
       [7, "We're going M.I.A oh"],
@@ -132,12 +146,27 @@ const setlist: Track[] = [
       [21, "Red fever comin' up"],
       [22, "We're going M.I.A"],
 
-      [24, "Ah, ppalgake pi mudeun suit and tie, drive"],
-      [29, "Heart is reckless, gingin daero wiro balba"],
-      [33, "Love is spinnin' when you're by my side"],
-      [35, "Tteugeopge, watch me take off and fly"],
+      [
+        24,
+        "Ah, ppalgake pi mudeun suit and tie, drive",
+      ],
+      [
+        29,
+        "Heart is reckless, gingin daero wiro balba",
+      ],
+      [
+        33,
+        "Love is spinnin' when you're by my side",
+      ],
+      [
+        35,
+        "Tteugeopge, watch me take off and fly",
+      ],
 
-      [38, "You wanna? Come touch me, party-arty"],
+      [
+        38,
+        "You wanna? Come touch me, party-arty",
+      ],
       [40, "Hae tteul ttaekkaji uri"],
       [42, "Come touch me, party-arty"],
       [44, "In our bloody paradise"],
@@ -162,12 +191,27 @@ const setlist: Track[] = [
       [74, "The sun is comin' up"],
       [76, "We're going M.I.A"],
 
-      [78, "Ah, ppalgake pi mudeun suit and tie, drive"],
-      [83, "Heart is reckless, gingin daero wiro balba"],
-      [86, "Love is spinnin' when you're by my side"],
-      [89, "Tteugeopge, watch me take off and fly"],
+      [
+        78,
+        "Ah, ppalgake pi mudeun suit and tie, drive",
+      ],
+      [
+        83,
+        "Heart is reckless, gingin daero wiro balba",
+      ],
+      [
+        86,
+        "Love is spinnin' when you're by my side",
+      ],
+      [
+        89,
+        "Tteugeopge, watch me take off and fly",
+      ],
 
-      [92, "You wanna? Come touch me, party-arty"],
+      [
+        92,
+        "You wanna? Come touch me, party-arty",
+      ],
       [94, "Hae tteul ttaekkaji uri"],
       [96, "Come touch me, party-arty"],
       [97, "In our bloody paradise"],
@@ -194,38 +238,28 @@ const setlist: Track[] = [
     ]),
 
     fanchant: lines([
-      [5, "EN! HA! I! PEUN!"],
-
+      [5, "EN! HA! I! PEUN"],
       [22, "We're going M.I.A"],
-
       [35, "Tteugeopge, watch me take"],
-
       [44, "In our bloody paradise"],
       [52, "In our bloody paradise"],
-
       [54, "FLY YA YA YA YA"],
       [56, "FLY YA YA YA YA"],
       [58, "FLY YA YA YA YA"],
-
       [76, "We're going M.I.A"],
-
       [89, "Tteugeopge, watch me take"],
-
       [97, "In our bloody paradise"],
       [105, "In our bloody paradise"],
-
       [108, "FLY YA YA YA YA"],
       [110, "FLY YA YA YA YA"],
       [112, "FLY YA YA YA YA"],
-
       [115, "FLY YA YA YA YA"],
       [117, "FLY YA YA YA YA"],
       [119, "FLY YA YA YA YA"],
-
       [121, "YANG JUNGWON, PARK JONGSEONG"],
       [123, "SIM JAEYUN, PARK SUNGHOON"],
       [125, "KIM SUNOO, NI-KI"],
-      [128, "EN! HA! I! PEUN!"],
+      [128, "EN! HA! I! PEUN"],
     ]),
   },
 
@@ -237,6 +271,7 @@ const setlist: Track[] = [
     type: "WEVERSE CON FESTIVAL 2026",
     section: "SONGS",
     duration: "2:43",
+    videoId: "Scufsa1FB2Q",
 
     lyrics: lines([
       [20, "XO XO"],
@@ -259,9 +294,14 @@ const setlist: Track[] = [
     type: "BLOOD SAGA in SEOUL",
     section: "SONGS",
     duration: "3:03",
+    videoId: "tWM5t3_v8KA",
 
     lyrics: lines([
-      [0, "The room is bright enough to see you", "opening"],
+      [
+        0,
+        "The room is bright enough to see you",
+        "opening",
+      ],
       [
         24,
         "Every little voice becomes a choir",
@@ -291,7 +331,11 @@ const setlist: Track[] = [
         "final chorus",
         "singalong",
       ],
-      [220, "Goodnight, goodnight, goodnight", "close"],
+      [
+        220,
+        "Goodnight, goodnight, goodnight",
+        "close",
+      ],
     ]),
 
     fanchant: lines([
@@ -305,371 +349,424 @@ const setlist: Track[] = [
   },
 ];
 
-function getVideoId(value: string) {
-  const match = value
-    .trim()
-    .match(
-      /(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([a-zA-Z0-9_-]{6,})/,
-    );
+function getVideoId(
+  value: string,
+): string | null {
+  const trimmed = value.trim();
 
-  return (
-    match?.[1] ??
-    value
-      .trim()
-      .match(/^[a-zA-Z0-9_-]{6,}$/)?.[0] ??
-    null
+  const match = trimmed.match(
+    /(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([a-zA-Z0-9_-]{6,})/,
   );
+
+  if (match && match[1]) {
+    return match[1];
+  }
+
+  const directId = trimmed.match(
+    /^[a-zA-Z0-9_-]{6,}$/,
+  );
+
+  if (directId && directId[0]) {
+    return directId[0];
+  }
+
+  return null;
 }
 
-function formatTime(seconds: number) {
-  const safeSeconds = Math.max(0, Math.floor(seconds));
+function formatTime(
+  seconds: number,
+): string {
+  const safeSeconds = Math.max(
+    0,
+    Math.floor(seconds),
+  );
 
-  const minutes = Math.floor(safeSeconds / 60);
+  const minutes = Math.floor(
+    safeSeconds / 60,
+  );
+
   const remainder = safeSeconds % 60;
 
-  return `${minutes}:${remainder.toString().padStart(2, "0")}`;
+  return (
+    String(minutes) +
+    ":" +
+    String(remainder).padStart(2, "0")
+  );
 }
-
-/**
- * Finds fanchants that are contained inside an existing lyric.
- *
- * Example:
- *
- * Tteugeopge, watch me take off and fly
- * └──────────────┘
- *       chant
- *
- * The fanchant becomes a green span inside the lyric.
- */
-function buildFanchantAssignments(
-  lyrics: TimedLine[],
-  fanchants: TimedLine[],
-) {
-  const assignments = new Map<number, TimedLine[]>();
-  const assignedFanchants = new Set<TimedLine>();
-
-  lyrics.forEach((lyric, lyricIndex) => {
-    const lyricText = lyric.text.toLowerCase();
-
-    const matches = fanchants
-      .filter((chant) => {
-        if (Math.abs(chant.time - lyric.time) > 2) {
-          return false;
-        }
-
-        return lyricText.includes(chant.text.toLowerCase());
-      })
-      .sort(
-        (a, b) =>
-          Math.abs(a.time - lyric.time) -
-          Math.abs(b.time - lyric.time),
-      );
-
-    if (matches.length > 0) {
-      assignments.set(lyricIndex, matches);
-
-      matches.forEach((chant) => {
-        assignedFanchants.add(chant);
-      });
-    }
-  });
-
-  return {
-    assignments,
-    assignedFanchants,
-  };
-}
-
-/**
- * Splits a lyric into normal lyric and fanchant spans.
- *
- * Normal:
- *   Tteugeopge, watch me take off and fly
- *
- * Rendered as:
- *   GREEN: Tteugeopge, watch me take
- *   BLACK: off and fly
- *
- * When active:
- *   GREEN: Tteugeopge, watch me take
- *   RED:   off and fly
- */
-
-
-function renderLyricText(
-  text: string,
-  fanchants: TimedLine[],
-  playbackSeconds: number,
-) {
-  if (fanchants.length === 0) {
-    return (
-      <span className="lyric-part">
-        {text}
-      </span>
-    );
-  }
-
-  const lowerText = text.toLowerCase();
-
-  const matches = fanchants
-    .map((chant) => {
-      const chantText = chant.text.toLowerCase();
-      const start = lowerText.indexOf(chantText);
-
-      if (start === -1) {
-        return null;
-      }
-
-      return {
-        chant,
-        start,
-        end: start + chant.text.length,
-      };
-    })
-    .filter(
-      (
-        match,
-      ): match is {
-        chant: TimedLine;
-        start: number;
-        end: number;
-      } => match !== null,
-    )
-    .sort((a, b) => a.start - b.start);
-
-  if (matches.length === 0) {
-    return (
-      <span className="lyric-part">
-        {text}
-      </span>
-    );
-  }
-
-  const parts: ReactNode[] = [];
-  let cursor = 0;
-
-  matches.forEach((match, index) => {
-    if (match.start < cursor) {
-      return;
-    }
-
-    if (match.start > cursor) {
-      parts.push(
-        <span
-          className="lyric-part"
-          key={`lyric-${index}-${cursor}`}
-        >
-          {text.slice(cursor, match.start)}
-        </span>,
-      );
-    }
-
-    const isFanchantActive =
-      playbackSeconds >= match.chant.time;
-
-    parts.push(
-      <span
-        className={
-          isFanchantActive
-            ? "singalong-part active"
-            : "fanchant-part"
-        }
-        key={`chant-${index}-${match.start}`}
-      >
-        {text.slice(match.start, match.end)}
-      </span>,
-    );
-
-    cursor = match.end;
-  });
-
-  if (cursor < text.length) {
-    parts.push(
-      <span
-        className="lyric-part"
-        key={`lyric-end-${cursor}`}
-      >
-        {text.slice(cursor)}
-      </span>,
-    );
-  }
-
-  return parts;
-}
-
-
 
 function Home() {
-  const [videoId, setVideoId] = useState(() => {
-    const params = new URLSearchParams(window.location.search);
+  const [videoId, setVideoId] =
+    useState<string>(() => {
+      const params =
+        new URLSearchParams(
+          window.location.search,
+        );
 
-    return (
-      getVideoId(params.get("v") ?? "") ??
-      getVideoId(INITIAL_URL) ??
-      ""
-    );
-  });
-
-  const [urlDraft, setUrlDraft] = useState(INITIAL_URL);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [urlError, setUrlError] = useState("");
-  const [selectedId, setSelectedId] = useState(setlist[0].id);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [playbackSeconds, setPlaybackSeconds] = useState(0);
-  const [duration, setDuration] = useState(FALLBACK_DURATION);
-  const [apiReady, setApiReady] = useState(false);
-  const [apiFailed, setApiFailed] = useState(false);
-  const [copied, setCopied] = useState(false);
-  const [isLiked, setIsLiked] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
-
-  const playerHostRef = useRef<HTMLDivElement>(null);
-  const playerRef = useRef<YouTubePlayer | null>(null);
-  const fallbackTimerRef = useRef<number | null>(null);
-  const activeLineRef = useRef<HTMLButtonElement | null>(null);
-
-  const selectedTrack = useMemo(
-    () =>
-      setlist.find(
-        (track) => track.id === selectedId,
-      ) ?? setlist[0],
-    [selectedId],
-  );
-
-  const fanchantData = useMemo(
-    () =>
-      buildFanchantAssignments(
-        selectedTrack.lyrics,
-        selectedTrack.fanchant,
-      ),
-    [selectedTrack],
-  );
-
-  /**
-   * Lyrics are the primary transcript.
-   *
-   * Fanchants that are already contained inside a lyric
-   * become colored spans within that lyric.
-   *
-   * Fanchants that don't belong inside a lyric become
-   * standalone green lines.
-   */
-  const transcriptLines = useMemo<TranscriptLine[]>(() => {
-    const lyricLines: TranscriptLine[] =
-      selectedTrack.lyrics.map(
-        (line, lyricIndex) => ({
-          ...line,
-          tone: line.tone ?? "lyric",
-          source: "LYRIC" as const,
-          lyricIndex,
-        }),
+      const urlVideoId = getVideoId(
+        params.get("v") ?? "",
       );
 
-    const standaloneFanchants: TranscriptLine[] =
-      selectedTrack.fanchant
-        .filter(
-          (chant) =>
-            !fanchantData.assignedFanchants.has(
-              chant,
-            ),
-        )
-        .map((chant) => ({
-          ...chant,
-          tone: "chant" as const,
-          source: "FANCHANT" as const,
-        }));
-
-    return [
-      ...lyricLines,
-      ...standaloneFanchants,
-    ].sort((a, b) => {
-      if (a.time !== b.time) {
-        return a.time - b.time;
-      }
-
-      if (
-        a.source === "LYRIC" &&
-        b.source === "FANCHANT"
-      ) {
-        return -1;
-      }
-
-      return 1;
+      return (
+        urlVideoId ??
+        INITIAL_VIDEO_ID
+      );
     });
-  }, [selectedTrack, fanchantData]);
 
-  /**
-   * The most recently reached cue becomes active.
-   */
+  const [urlDraft, setUrlDraft] =
+    useState<string>(INITIAL_URL);
+
+  const [isModalOpen, setIsModalOpen] =
+    useState(false);
+
+  const [urlError, setUrlError] =
+    useState("");
+
+  const [selectedId, setSelectedId] =
+    useState(setlist[0].id);
+
+  const [isPlaying, setIsPlaying] =
+    useState(false);
+
+  const [
+    playbackSeconds,
+    setPlaybackSeconds,
+  ] = useState(0);
+
+  const [duration, setDuration] =
+    useState(FALLBACK_DURATION);
+
+  const [apiReady, setApiReady] =
+    useState(false);
+
+  const [apiFailed, setApiFailed] =
+    useState(false);
+
+  const [copied, setCopied] =
+    useState(false);
+
+  const [isLiked, setIsLiked] =
+    useState(false);
+
+  const [isMuted, setIsMuted] =
+    useState(false);
+
+  const playerHostRef =
+    useRef<HTMLDivElement>(null);
+
+  const playerRef =
+    useRef<YouTubePlayer | null>(
+      null,
+    );
+
+  const fallbackTimerRef =
+    useRef<number | null>(null);
+
+  const activeLineRef =
+    useRef<HTMLButtonElement | null>(
+      null,
+    );
+
+  const autoplayTrackRef =
+    useRef(false);
+
+  const initialPlayerCreatedRef =
+    useRef(false);
+
+  const lastLoadedVideoIdRef =
+    useRef<string | null>(null);
+
+  const selectedTrack = useMemo(() => {
+    const found = setlist.find(
+      (track) =>
+        track.id === selectedId,
+    );
+
+    return found ?? setlist[0];
+  }, [selectedId]);
+
+  const fanchantData = useMemo(() => {
+    const assignments = new Map<
+      number,
+      TimedLine[]
+    >();
+
+    const assigned =
+      new Set<TimedLine>();
+
+    selectedTrack.lyrics.forEach(
+      (lyric, lyricIndex) => {
+        const matches =
+          selectedTrack.fanchant.filter(
+            (chant) => {
+              const timeDifference =
+                Math.abs(
+                  chant.time -
+                    lyric.time,
+                );
+
+              if (
+                timeDifference > 2
+              ) {
+                return false;
+              }
+
+              return lyric.text
+                .toLowerCase()
+                .includes(
+                  chant.text.toLowerCase(),
+                );
+            },
+          );
+
+        if (matches.length > 0) {
+          assignments.set(
+            lyricIndex,
+            matches,
+          );
+
+          matches.forEach(
+            (chant) => {
+              assigned.add(chant);
+            },
+          );
+        }
+      },
+    );
+
+    return {
+      assignments,
+      assignedFanchants: assigned,
+    };
+  }, [selectedTrack]);
+
+  const transcriptLines =
+    useMemo<TranscriptLine[]>(() => {
+      const lyricLines =
+        selectedTrack.lyrics.map(
+          (
+            line,
+            lyricIndex,
+          ) => {
+            return {
+              ...line,
+              tone:
+                line.tone ??
+                "lyric",
+              source:
+                "LYRIC" as const,
+              lyricIndex,
+            };
+          },
+        );
+
+      const standaloneFanchants =
+        selectedTrack.fanchant
+          .filter(
+            (chant) =>
+              !fanchantData.assignedFanchants.has(
+                chant,
+              ),
+          )
+          .map((chant) => {
+            return {
+              ...chant,
+              tone:
+                "chant" as const,
+              source:
+                "FANCHANT" as const,
+            };
+          });
+
+      return [
+        ...lyricLines,
+        ...standaloneFanchants,
+      ].sort((a, b) => {
+        if (a.time !== b.time) {
+          return a.time - b.time;
+        }
+
+        if (
+          a.source === "LYRIC" &&
+          b.source === "FANCHANT"
+        ) {
+          return -1;
+        }
+
+        if (
+          a.source === "FANCHANT" &&
+          b.source === "LYRIC"
+        ) {
+          return 1;
+        }
+
+        return 0;
+      });
+    }, [
+      selectedTrack,
+      fanchantData,
+    ]);
+
   const activeIndex = useMemo(() => {
     let index = -1;
 
     transcriptLines.forEach(
       (line, lineIndex) => {
-        if (line.time <= playbackSeconds) {
+        if (
+          line.time <=
+          playbackSeconds
+        ) {
           index = lineIndex;
         }
       },
     );
 
     return index;
-  }, [transcriptLines, playbackSeconds]);
+  }, [
+    transcriptLines,
+    playbackSeconds,
+  ]);
 
   const progress =
     duration > 0
       ? Math.min(
           100,
-          (playbackSeconds / duration) * 100,
+          (playbackSeconds /
+            duration) *
+            100,
         )
       : 0;
 
+  /*
+   * Load YouTube API.
+   */
   useEffect(() => {
-    const existingScript = document.querySelector(
-      'script[src="https://www.youtube.com/iframe_api"]',
-    );
+    let cancelled = false;
 
-    const timeout = window.setTimeout(
-      () => setApiFailed(true),
-      4500,
-    );
+    const existingScript =
+      document.querySelector(
+        'script[src="https://www.youtube.com/iframe_api"]',
+      );
 
-    window.onYouTubeIframeAPIReady = () => {
-      window.clearTimeout(timeout);
-      setApiReady(true);
-    };
+    const checkExistingApi =
+      window.setInterval(() => {
+        if (
+          window.YT &&
+          window.YT.Player
+        ) {
+          window.clearInterval(
+            checkExistingApi,
+          );
 
-    if (!existingScript) {
-      const script = document.createElement("script");
+          if (!cancelled) {
+            setApiReady(true);
+          }
+        }
+      }, 100);
+
+    const timeout =
+      window.setTimeout(() => {
+        window.clearInterval(
+          checkExistingApi,
+        );
+
+        if (
+          !window.YT?.Player &&
+          !cancelled
+        ) {
+          setApiFailed(true);
+        }
+      }, 8000);
+
+    const previousCallback =
+      window.onYouTubeIframeAPIReady;
+
+    window.onYouTubeIframeAPIReady =
+      () => {
+        if (previousCallback) {
+          previousCallback();
+        }
+
+        if (!cancelled) {
+          window.clearTimeout(
+            timeout,
+          );
+
+          setApiReady(true);
+        }
+      };
+
+    if (
+      !existingScript &&
+      !window.YT?.Player
+    ) {
+      const script =
+        document.createElement(
+          "script",
+        );
 
       script.src =
         "https://www.youtube.com/iframe_api";
 
-      document.body.appendChild(script);
-    } else if (window.YT?.Player) {
-      window.clearTimeout(timeout);
+      script.async = true;
+
+      document.body.appendChild(
+        script,
+      );
+    } else if (
+      window.YT?.Player
+    ) {
+      window.clearTimeout(
+        timeout,
+      );
+
+      window.clearInterval(
+        checkExistingApi,
+      );
+
       setApiReady(true);
     }
 
     return () => {
-      window.clearTimeout(timeout);
-      window.onYouTubeIframeAPIReady = undefined;
+      cancelled = true;
+
+      window.clearTimeout(
+        timeout,
+      );
+
+      window.clearInterval(
+        checkExistingApi,
+      );
+
+      window.onYouTubeIframeAPIReady =
+        previousCallback;
     };
   }, []);
 
+  /*
+   * Create YouTube player once.
+   *
+   * IMPORTANT:
+   * autoplay is OFF here so the
+   * initial page stays paused.
+   */
   useEffect(() => {
     if (
       !apiReady ||
+      !window.YT?.Player ||
       !playerHostRef.current ||
-      playerRef.current
+      initialPlayerCreatedRef.current
     ) {
       return;
     }
 
-    playerRef.current =
-      new window.YT!.Player(
+    initialPlayerCreatedRef.current =
+      true;
+
+    const player =
+      new window.YT.Player(
         playerHostRef.current,
         {
-          videoId,
+          videoId: videoId,
 
           playerVars: {
             autoplay: 0,
@@ -681,37 +778,84 @@ function Home() {
 
           events: {
             onReady: () => {
-              const apiDuration =
-                playerRef.current?.getDuration?.();
+              playerRef.current =
+                player;
 
-              if (apiDuration) {
-                setDuration(apiDuration);
+              lastLoadedVideoIdRef.current =
+                videoId;
+
+              const apiDuration =
+                player.getDuration?.();
+
+              if (
+                apiDuration &&
+                apiDuration > 0
+              ) {
+                setDuration(
+                  apiDuration,
+                );
+              }
+
+              setPlaybackSeconds(
+                0,
+              );
+
+              const shouldAutoplay =
+                autoplayTrackRef.current;
+
+              autoplayTrackRef.current =
+                false;
+
+              if (
+                shouldAutoplay
+              ) {
+                player.playVideo?.();
+              } else {
+                setIsPlaying(
+                  false,
+                );
               }
             },
 
-            onStateChange: (event) => {
+            onStateChange: (
+              event,
+            ) => {
               const state =
-                window.YT?.PlayerState;
+                window.YT
+                  ?.PlayerState;
 
               if (
-                event.data === state?.PLAYING
+                event.data ===
+                state?.PLAYING
               ) {
-                setIsPlaying(true);
+                setIsPlaying(
+                  true,
+                );
               }
 
               if (
-                event.data === state?.PAUSED ||
-                event.data === state?.ENDED
+                event.data ===
+                  state?.PAUSED ||
+                event.data ===
+                  state?.ENDED
               ) {
-                setIsPlaying(false);
+                setIsPlaying(
+                  false,
+                );
               }
 
               if (
-                event.data === state?.ENDED
+                event.data ===
+                state?.ENDED
               ) {
+                const endedDuration =
+                  playerRef.current?.getDuration?.();
+
                 setPlaybackSeconds(
-                  playerRef.current?.getDuration?.() ??
-                    FALLBACK_DURATION,
+                  endedDuration &&
+                  endedDuration > 0
+                    ? endedDuration
+                    : FALLBACK_DURATION,
                 );
               }
             },
@@ -719,17 +863,91 @@ function Home() {
         },
       );
 
-    return () => {
-      playerRef.current?.destroy();
-      playerRef.current = null;
-    };
+    playerRef.current =
+      player;
+  }, [apiReady]);
+
+  /*
+   * Change video without
+   * destroying the player.
+   */
+  useEffect(() => {
+    if (
+      !apiReady ||
+      !playerRef.current
+    ) {
+      return;
+    }
+
+    if (
+      lastLoadedVideoIdRef.current ===
+      videoId
+    ) {
+      return;
+    }
+
+    const player =
+      playerRef.current;
+
+    const shouldAutoplay =
+      autoplayTrackRef.current;
+
+    autoplayTrackRef.current =
+      false;
+
+    setPlaybackSeconds(0);
+
+    setDuration(
+      FALLBACK_DURATION,
+    );
+
+    setIsPlaying(false);
+
+    lastLoadedVideoIdRef.current =
+      videoId;
+
+    if (shouldAutoplay) {
+      if (
+        player.loadVideoById
+      ) {
+        player.loadVideoById(
+          videoId,
+        );
+      } else if (
+        player.cueVideoById
+      ) {
+        player.cueVideoById(
+          videoId,
+        );
+
+        window.setTimeout(
+          () => {
+            playerRef.current?.playVideo?.();
+          },
+          150,
+        );
+      }
+    } else {
+      player.cueVideoById?.(
+        videoId,
+      );
+    }
   }, [apiReady, videoId]);
 
+  /*
+   * Playback clock.
+   */
   useEffect(() => {
-    if (fallbackTimerRef.current) {
+    if (
+      fallbackTimerRef.current !==
+      null
+    ) {
       window.clearInterval(
         fallbackTimerRef.current,
       );
+
+      fallbackTimerRef.current =
+        null;
     }
 
     if (!isPlaying) {
@@ -738,159 +956,294 @@ function Home() {
 
     fallbackTimerRef.current =
       window.setInterval(() => {
-        if (playerRef.current) {
+        const player =
+          playerRef.current;
+
+        if (player) {
           const current =
-            playerRef.current.getCurrentTime?.() ??
+            player.getCurrentTime?.() ??
             0;
 
           const currentDuration =
-            playerRef.current.getDuration?.() ??
+            player.getDuration?.() ??
             duration;
 
-          setPlaybackSeconds(current);
+          setPlaybackSeconds(
+            current,
+          );
 
-          if (currentDuration > 0) {
-            setDuration(currentDuration);
+          if (
+            currentDuration > 0
+          ) {
+            setDuration(
+              currentDuration,
+            );
           }
         } else {
           setPlaybackSeconds(
-            (current) =>
-              current >= FALLBACK_DURATION
-                ? 0
-                : current + 0.25,
+            (current) => {
+              if (
+                current >=
+                FALLBACK_DURATION
+              ) {
+                return 0;
+              }
+
+              return current + 0.25;
+            },
           );
         }
       }, 250);
 
     return () => {
-      if (fallbackTimerRef.current) {
+      if (
+        fallbackTimerRef.current !==
+        null
+      ) {
+        window.clearInterval(
+          fallbackTimerRef.current,
+        );
+
+        fallbackTimerRef.current =
+          null;
+      }
+    };
+  }, [
+    duration,
+    isPlaying,
+  ]);
+
+  /*
+   * Keep active lyric centered.
+   */
+  useEffect(() => {
+    if (
+      activeLineRef.current
+    ) {
+      activeLineRef.current.scrollIntoView(
+        {
+          behavior: "smooth",
+          block: "center",
+        },
+      );
+    }
+  }, [
+    activeIndex,
+    selectedId,
+  ]);
+
+  /*
+   * Destroy player on unmount.
+   */
+  useEffect(() => {
+    return () => {
+      if (
+        fallbackTimerRef.current !==
+        null
+      ) {
         window.clearInterval(
           fallbackTimerRef.current,
         );
       }
+
+      playerRef.current?.destroy?.();
+
+      playerRef.current = null;
     };
-  }, [duration, isPlaying]);
+  }, []);
 
-  useEffect(() => {
-    activeLineRef.current?.scrollIntoView({
-      behavior: "smooth",
-      block: "center",
-    });
-  }, [activeIndex, selectedId]);
+  /*
+   * Select a track.
+   *
+   * Clicking a setlist track
+   * automatically starts playback.
+   */
+  const chooseTrack = (
+    track: Track,
+  ) => {
+    autoplayTrackRef.current =
+      true;
 
-  const chooseTrack = (track: Track) => {
     setSelectedId(track.id);
+
+    setVideoId(track.videoId);
+
     setPlaybackSeconds(0);
+
+    setDuration(
+      FALLBACK_DURATION,
+    );
+
     setIsPlaying(false);
   };
 
-  const togglePlayback = useCallback(() => {
-    if (playerRef.current) {
-      if (isPlaying) {
-        playerRef.current.pauseVideo();
-      } else {
-        playerRef.current.playVideo();
+  /*
+   * Play / pause.
+   */
+  const togglePlayback =
+    useCallback(() => {
+      const player =
+        playerRef.current;
+
+      if (!player) {
+        setIsPlaying(
+          (playing) =>
+            !playing,
+        );
+
+        return;
       }
 
-      setIsPlaying((playing) => !playing);
+      if (isPlaying) {
+        player.pauseVideo?.();
+      } else {
+        player.playVideo?.();
+      }
+    }, [isPlaying]);
 
-      return;
-    }
+  /*
+   * Seek.
+   */
+  const seekTo =
+    useCallback(
+      (seconds: number) => {
+        const safeSeconds =
+          Math.max(
+            0,
+            Math.min(
+              seconds,
+              duration ||
+                FALLBACK_DURATION,
+            ),
+          );
 
-    setIsPlaying((playing) => !playing);
-  }, [isPlaying]);
+        setPlaybackSeconds(
+          safeSeconds,
+        );
 
-  const seekTo = useCallback(
-    (seconds: number) => {
-      setPlaybackSeconds(seconds);
-
-      if (playerRef.current) {
-        playerRef.current.seekTo(
-          seconds,
+        playerRef.current?.seekTo?.(
+          safeSeconds,
           true,
         );
-      }
-    },
-    [],
-  );
+      },
+      [duration],
+    );
 
   const handleProgressChange = (
     event: ChangeEvent<HTMLInputElement>,
   ) => {
-    seekTo(Number(event.target.value));
+    seekTo(
+      Number(
+        event.target.value,
+      ),
+    );
   };
 
+  /*
+   * Load custom YouTube video.
+   */
   const handleLoadVideo = (
     event: FormEvent<HTMLFormElement>,
   ) => {
     event.preventDefault();
 
-    const nextId = getVideoId(urlDraft);
+    const nextId =
+      getVideoId(urlDraft);
 
     if (!nextId) {
       setUrlError(
         "Paste a YouTube link or an 11-character video ID.",
       );
+
       return;
     }
 
-    setUrlError("");
-    setVideoId(nextId);
-    setPlaybackSeconds(0);
-    setDuration(FALLBACK_DURATION);
-    setIsPlaying(false);
+    autoplayTrackRef.current =
+      false;
 
-    const nextUrl = new URL(
-      window.location.href,
+    setUrlError("");
+
+    setVideoId(nextId);
+
+    setPlaybackSeconds(0);
+
+    setDuration(
+      FALLBACK_DURATION,
     );
 
-    nextUrl.searchParams.set("v", nextId);
+    setIsPlaying(false);
+
+    const nextUrl =
+      new URL(
+        window.location.href,
+      );
+
+    nextUrl.searchParams.set(
+      "v",
+      nextId,
+    );
 
     window.history.replaceState(
       {},
       "",
-      nextUrl,
+      nextUrl.toString(),
     );
 
     setIsModalOpen(false);
   };
 
-  const copySessionLink = async () => {
-    try {
-      await navigator.clipboard.writeText(
-        window.location.href,
-      );
+  /*
+   * Share session.
+   */
+  const copySessionLink =
+    async () => {
+      try {
+        await navigator.clipboard.writeText(
+          window.location.href,
+        );
 
-      setCopied(true);
+        setCopied(true);
 
-      window.setTimeout(
-        () => setCopied(false),
-        1800,
-      );
-    } catch {
-      setCopied(false);
-    }
-  };
+        window.setTimeout(
+          () => {
+            setCopied(false);
+          },
+          1800,
+        );
+      } catch {
+        setCopied(false);
+      }
+    };
 
+  /*
+   * Mute / unmute.
+   */
   const toggleMute = () => {
-    if (playerRef.current) {
+    const player =
+      playerRef.current;
+
+    if (player) {
       if (isMuted) {
-        playerRef.current.unMuteVideo?.();
+        player.unMuteVideo?.();
       } else {
-        playerRef.current.muteVideo?.();
+        player.muteVideo?.();
       }
     }
 
-    setIsMuted((muted) => !muted);
+    setIsMuted(
+      (muted) => !muted,
+    );
   };
 
   const tracksBySection = (
     section: Track["section"],
-  ) =>
-    setlist.filter(
+  ) => {
+    return setlist.filter(
       (track) =>
-        track.section === section,
+        track.section ===
+        section,
     );
+  };
 
   return (
     <div className="studio-shell">
@@ -933,7 +1286,9 @@ function Home() {
         <button
           className="share-button"
           data-testid="button-share-session"
-          onClick={copySessionLink}
+          onClick={
+            copySessionLink
+          }
           type="button"
         >
           {copied ? (
@@ -990,7 +1345,7 @@ function Home() {
 
           <span className="legend-item">
             <i className="legend-swatch chant-swatch" />
-            green / chant
+            green / fanchant
           </span>
 
           <span className="legend-item">
@@ -1004,14 +1359,14 @@ function Home() {
           </span>
 
           <span className="legend-item">
-            <i className="legend-swatch active-swatch" />
-            red / current cue
+            <i className="legend-swatch highlight-swatch" />
+            red / current lyric
           </span>
 
           <span className="legend-track">
-            <ListMusic size={13} />{" "}
-            {setlist.length} songs in this
-            playlist
+            <ListMusic size={13} />
+            {setlist.length} songs in
+            this playlist
           </span>
         </section>
 
@@ -1029,86 +1384,90 @@ function Home() {
               </span>
 
               <span className="set-count">
-                3 tracks
+                {setlist.length} tracks
               </span>
             </div>
 
             <h2 className="setlist-title">
-              TEST
+              BLOOD SAGA
               <br />
-              <span>SONGS</span>
+              <span>TOUR</span>
             </h2>
 
             <p className="setlist-intro">
-              Select a song from the list below
+              Your personal fanchant
+              cue sheet for the
+              performance.
             </p>
 
             <div className="setlist-sections">
-              {(["SONGS"] as const).map(
-                (section) => (
-                  <section
-                    className="set-section"
-                    key={section}
-                    aria-labelledby={`heading-${section.replace(
-                      " ",
-                      "-",
-                    )}`}
-                  >
-                    <div
-                      className="section-heading"
-                      id={`heading-${section.replace(
-                        " ",
-                        "-",
-                      )}`}
-                    >
-                      <span>{section}</span>
-                      <i />
-                    </div>
+              {(
+                ["SONGS"] as const
+              ).map((section) => (
+                <section
+                  className="set-section"
+                  key={section}
+                >
+                  <div className="section-heading">
+                    <span>
+                      {section}
+                    </span>
 
-                    <div className="set-rows">
-                      {tracksBySection(
-                        section,
-                      ).map(
-                        (track) => (
-                          <button
-                            className={`set-row ${
-                              selectedId ===
-                              track.id
-                                ? "selected"
-                                : ""
-                            }`}
-                            data-testid={`button-setlist-${track.id}`}
-                            key={track.id}
-                            onClick={() =>
-                              chooseTrack(
-                                track,
-                              )
+                    <i />
+                  </div>
+
+                  <div className="set-rows">
+                    {tracksBySection(
+                      section,
+                    ).map(
+                      (track) => (
+                        <button
+                          className={
+                            selectedId ===
+                            track.id
+                              ? "set-row selected"
+                              : "set-row"
+                          }
+                          data-testid={
+                            "button-setlist-" +
+                            track.id
+                          }
+                          key={
+                            track.id
+                          }
+                          onClick={() =>
+                            chooseTrack(
+                              track,
+                            )
+                          }
+                          type="button"
+                        >
+                          <span className="set-number">
+                            {String(
+                              track.number,
+                            ).padStart(
+                              2,
+                              "0",
+                            )}
+                          </span>
+
+                          <span className="set-song">
+                            {
+                              track.title
                             }
-                            type="button"
-                          >
-                            <span className="set-number">
-                              {String(
-                                track.number,
-                              ).padStart(
-                                2,
-                                "0",
-                              )}
-                            </span>
+                          </span>
 
-                            <span className="set-song">
-                              {track.title}
-                            </span>
-
-                            <span className="set-duration">
-                              {track.duration}
-                            </span>
-                          </button>
-                        ),
-                      )}
-                    </div>
-                  </section>
-                ),
-              )}
+                          <span className="set-duration">
+                            {
+                              track.duration
+                            }
+                          </span>
+                        </button>
+                      ),
+                    )}
+                  </div>
+                </section>
+              ))}
             </div>
           </aside>
 
@@ -1120,17 +1479,26 @@ function Home() {
               <div className="video-wrap">
                 <div
                   className="player-frame"
-                  ref={playerHostRef}
-                >
-                  {!apiReady && (
-                    <iframe
-                      title={`${selectedTrack.title} YouTube performance`}
-                      src={`https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1`}
-                      allow="autoplay; encrypted-media; picture-in-picture"
-                      allowFullScreen
-                    />
-                  )}
-                </div>
+                  ref={
+                    playerHostRef
+                  }
+                />
+
+                {!apiReady && (
+                  <iframe
+                    title={
+                      selectedTrack.title +
+                      " YouTube performance"
+                    }
+                    src={
+                      "https://www.youtube.com/embed/" +
+                      videoId +
+                      "?autoplay=0&rel=0&modestbranding=1&playsinline=1"
+                    }
+                    allow="autoplay; encrypted-media; picture-in-picture"
+                    allowFullScreen
+                  />
+                )}
 
                 {!apiReady &&
                   !apiFailed && (
@@ -1140,6 +1508,17 @@ function Home() {
                     >
                       connecting to the
                       stage
+                    </div>
+                  )}
+
+                {apiFailed &&
+                  !apiReady && (
+                    <div
+                      className="video-loading"
+                      data-testid="status-video-error"
+                    >
+                      YouTube player
+                      unavailable
                     </div>
                   )}
 
@@ -1164,8 +1543,11 @@ function Home() {
                       2,
                       "0",
                     )}
-                  </span>{" "}
-                  {selectedTrack.title}
+                  </span>
+
+                  {
+                    selectedTrack.title
+                  }
                 </div>
               </div>
 
@@ -1191,18 +1573,25 @@ function Home() {
                     }
                     style={
                       {
-                        "--progress": `${progress}%`,
+                        "--progress":
+                          progress +
+                          "%",
                       } as CSSProperties
                     }
                     type="range"
-                    value={playbackSeconds}
+                    value={Math.min(
+                      playbackSeconds,
+                      duration,
+                    )}
                   />
 
                   <span
                     className="timestamp"
                     data-testid="text-duration"
                   >
-                    {formatTime(duration)}
+                    {formatTime(
+                      duration,
+                    )}
                   </span>
                 </div>
 
@@ -1271,9 +1660,13 @@ function Home() {
                       type="button"
                     >
                       {isMuted ? (
-                        <VolumeX size={15} />
+                        <VolumeX
+                          size={15}
+                        />
                       ) : (
-                        <Volume2 size={15} />
+                        <Volume2
+                          size={15}
+                        />
                       )}
                     </button>
 
@@ -1290,7 +1683,9 @@ function Home() {
                       }
                       type="button"
                     >
-                      <Maximize2 size={15} />
+                      <Maximize2
+                        size={15}
+                      />
                     </button>
                   </div>
                 </div>
@@ -1312,24 +1707,34 @@ function Home() {
                     className="track-title"
                     data-testid="text-track-title"
                   >
-                    {selectedTrack.title}
+                    {
+                      selectedTrack.title
+                    }
                   </h2>
 
                   <p
                     className="track-artist"
                     data-testid="text-track-artist"
                   >
-                    {selectedTrack.artist} · ENHYPEN
+                    {
+                      selectedTrack.artist
+                    }{" "}
+                    · ENHYPEN
                   </p>
                 </div>
 
                 <div className="track-tags">
                   <span className="tag tag-highlight">
-                    {selectedTrack.section}
+                    {
+                      selectedTrack.type ??
+                      selectedTrack.section
+                    }
                   </span>
 
                   <span className="tag">
-                    {selectedTrack.duration}
+                    {
+                      selectedTrack.duration
+                    }
                   </span>
 
                   <button
@@ -1338,9 +1743,11 @@ function Home() {
                         ? "Remove from saved rooms"
                         : "Save this room"
                     }
-                    className={`icon-button save-button ${
-                      isLiked ? "saved" : ""
-                    }`}
+                    className={
+                      isLiked
+                        ? "icon-button save-button saved"
+                        : "icon-button save-button"
+                    }
                     data-testid="button-save-room"
                     onClick={() =>
                       setIsLiked(
@@ -1380,10 +1787,9 @@ function Home() {
                     </p>
 
                     <p className="info-description">
-                      Tap any line to
-                      jump there. The
-                      room keeps your
-                      place.
+                      Tap any line to jump
+                      there. The room keeps
+                      your place.
                     </p>
                   </div>
                 </div>
@@ -1392,7 +1798,10 @@ function Home() {
                   className="progress-caption"
                   data-testid="text-progress-caption"
                 >
-                  {Math.round(progress)}%
+                  {Math.round(
+                    progress,
+                  )}
+                  %
                   <br />
                   through the set
                 </div>
@@ -1403,10 +1812,15 @@ function Home() {
                 data-testid="button-change-video"
                 onClick={() => {
                   setUrlDraft(
-                    `https://youtu.be/${videoId}`,
+                    "https://youtu.be/" +
+                      videoId,
                   );
 
-                  setIsModalOpen(true);
+                  setUrlError("");
+
+                  setIsModalOpen(
+                    true,
+                  );
                 }}
                 type="button"
               >
@@ -1422,8 +1836,8 @@ function Home() {
                     </p>
 
                     <p className="info-description">
-                      Swap in any
-                      YouTube URL.
+                      Swap in any YouTube
+                      URL.
                     </p>
                   </div>
                 </div>
@@ -1478,9 +1892,13 @@ function Home() {
               </div>
 
               <div className="transcript-track">
-                {selectedTrack.title}{" "}
+                {
+                  selectedTrack.title
+                }{" "}
                 <span>·</span>{" "}
-                {selectedTrack.artist}
+                {
+                  selectedTrack.artist
+                }
               </div>
             </div>
 
@@ -1489,58 +1907,51 @@ function Home() {
               data-testid="list-transcript"
             >
               {transcriptLines.map(
-                (line, index) => {
+                (
+                  line,
+                  index,
+                ) => {
                   const isActive =
-                    index === activeIndex;
+                    index ===
+                    activeIndex;
 
-                  const isStandaloneFanchant =
-                    line.source ===
-                    "FANCHANT";
-
-                  const lyricIndex =
-                    line.lyricIndex;
-
-                  const embeddedFanchants =
-                    !isStandaloneFanchant &&
-                    lyricIndex !==
-                      undefined
-                      ? fanchantData.assignments.get(
-                          lyricIndex,
-                        ) ?? []
-                      : [];
-
-                  let lineClass =
+                  const tone =
+                    line.tone ??
                     "lyric";
 
-                  if (
-                    isStandaloneFanchant
-                  ) {
-                    lineClass = "chant";
-                  } else if (
-                    line.tone ===
-                    "singalong"
-                  ) {
-                    lineClass = "singalong";
+                  let lineClass =
+                    "lyric-line tone-" +
+                    tone +
+                    " source-" +
+                    line.source.toLowerCase();
+
+                  if (isActive) {
+                    lineClass +=
+                      " active";
                   }
 
                   return (
                     <button
-                      className={[
-                        "lyric-line",
-                        `lyric-tone-${lineClass}`,
-                        isActive
-                          ? "active"
-                          : "",
-                        isStandaloneFanchant
-                          ? "standalone-fanchant"
-                          : "",
-                      ]
-                        .filter(Boolean)
-                        .join(" ")}
-                      data-testid={`button-transcript-line-${index}`}
-                      key={`${selectedTrack.id}-${line.source}-${line.time}-${index}`}
+                      className={
+                        lineClass
+                      }
+                      data-testid={
+                        "button-transcript-line-" +
+                        index
+                      }
+                      key={
+                        selectedTrack.id +
+                        "-" +
+                        line.source +
+                        "-" +
+                        line.time +
+                        "-" +
+                        index
+                      }
                       onClick={() =>
-                        seekTo(line.time)
+                        seekTo(
+                          line.time,
+                        )
                       }
                       ref={
                         isActive
@@ -1551,26 +1962,11 @@ function Home() {
                     >
                       <span className="line-content">
                         <span className="line-text">
-                          {isStandaloneFanchant
-                            ? line.text
-                            : renderLyricText(
-                            line.text,
-                            embeddedFanchants,
-                            playbackSeconds,
-                          )}
+                          {
+                            line.text
+                          }
                         </span>
-
-                        {line.note && (
-                          <span className="line-note">
-                            {line.note}
-                          </span>
-                        )}
                       </span>
-
-                      <span
-                        className="line-pulse"
-                        aria-hidden="true"
-                      />
                     </button>
                   );
                 },
@@ -1578,24 +1974,31 @@ function Home() {
             </div>
           </aside>
         </section>
+        <footer className="studio-footer">For ENGENEs, by MAUI</footer>
       </main>
 
       {isModalOpen && (
         <div
           className="modal-backdrop"
           role="presentation"
-          onMouseDown={(event) => {
+          onMouseDown={(
+            event,
+          ) => {
             if (
               event.target ===
               event.currentTarget
             ) {
-              setIsModalOpen(false);
+              setIsModalOpen(
+                false,
+              );
             }
           }}
         >
           <form
             className="modal-card"
-            onSubmit={handleLoadVideo}
+            onSubmit={
+              handleLoadVideo
+            }
           >
             <div className="modal-top">
               <div>
@@ -1613,9 +2016,10 @@ function Home() {
               <button
                 aria-label="Close video dialog"
                 className="icon-button"
-                data-testid="button-close-video-dialog"
                 onClick={() =>
-                  setIsModalOpen(false)
+                  setIsModalOpen(
+                    false,
+                  )
                 }
                 type="button"
               >
@@ -1624,11 +2028,11 @@ function Home() {
             </div>
 
             <p className="modal-copy">
-              Use a YouTube watch
-              link, short link, embed
-              link, or video ID. Your
-              room state stays in the URL
-              for easy sharing.
+              Use a YouTube watch link,
+              short link, embed link, or
+              video ID. Your room state
+              stays in the URL for easy
+              sharing.
             </p>
 
             <label
@@ -1641,22 +2045,20 @@ function Home() {
             <input
               autoFocus
               className="url-input"
-              data-testid="input-video-url"
               id="video-url"
-              onChange={(event) =>
+              onChange={(event) => {
                 setUrlDraft(
                   event.target.value,
-                )
-              }
+                );
+
+                setUrlError("");
+              }}
               placeholder="https://www.youtube.com/watch?v=..."
               value={urlDraft}
             />
 
             {urlError && (
-              <p
-                className="input-error"
-                data-testid="status-video-error"
-              >
+              <p className="input-error">
                 {urlError}
               </p>
             )}
@@ -1664,9 +2066,10 @@ function Home() {
             <div className="modal-actions">
               <button
                 className="secondary-action"
-                data-testid="button-cancel-video"
                 onClick={() =>
-                  setIsModalOpen(false)
+                  setIsModalOpen(
+                    false,
+                  )
                 }
                 type="button"
               >
@@ -1675,7 +2078,6 @@ function Home() {
 
               <button
                 className="primary-action"
-                data-testid="button-load-video"
                 type="submit"
               >
                 Load into room
@@ -1686,10 +2088,7 @@ function Home() {
       )}
 
       {copied && (
-        <div
-          className="toast-note"
-          data-testid="status-copied"
-        >
+        <div className="toast-note">
           Room link copied
         </div>
       )}
@@ -1697,56 +2096,4 @@ function Home() {
   );
 }
 
-function Router() {
-  return (
-    <Switch>
-      <Route
-        path="/"
-        component={Home}
-      />
-
-      <Route
-        component={NotFound}
-      />
-    </Switch>
-  );
-}
-
-function RoutedErrorBoundary({
-  children,
-}: {
-  children: ReactNode;
-}) {
-  return (
-    <ErrorBoundary
-      resetKey={window.location.pathname}
-    >
-      {children}
-    </ErrorBoundary>
-  );
-}
-
-function App() {
-  return (
-    <QueryClientProvider
-      client={queryClient}
-    >
-      <TooltipProvider>
-        <WouterRouter
-          base={import.meta.env.BASE_URL.replace(
-            /\/$/,
-            "",
-          )}
-        >
-          <RoutedErrorBoundary>
-            <Router />
-          </RoutedErrorBoundary>
-        </WouterRouter>
-
-        <Toaster />
-      </TooltipProvider>
-    </QueryClientProvider>
-  );
-}
-
-export default App;
+export default Home;
