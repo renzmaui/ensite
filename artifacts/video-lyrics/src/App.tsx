@@ -5,7 +5,6 @@ import {
   useRef,
   useState,
 } from "react";
-
 import type {
   ChangeEvent,
   CSSProperties,
@@ -70,12 +69,8 @@ type YouTubePlayer = {
   getDuration?: () => number;
   pauseVideo?: () => void;
   playVideo?: () => void;
-  seekTo?: (
-    seconds: number,
-    allowSeekAhead: boolean,
-  ) => void;
+  seekTo?: (seconds: number, allowSeekAhead: boolean) => void;
   loadVideoById?: (videoId: string) => void;
-  cueVideoById?: (videoId: string) => void;
   muteVideo?: () => void;
   unMuteVideo?: () => void;
 };
@@ -90,9 +85,7 @@ declare global {
           playerVars?: Record<string, number | string>;
           events?: {
             onReady?: () => void;
-            onStateChange?: (
-              event: YouTubePlayerEvent,
-            ) => void;
+            onStateChange?: (event: YouTubePlayerEvent) => void;
           };
         },
       ) => YouTubePlayer;
@@ -113,19 +106,14 @@ const FALLBACK_DURATION = 212;
 const INITIAL_VIDEO_ID = "MT-4Bk1Lw8g";
 
 const lines = (
-  texts: Array<
-    [number, string, string?, LineTone?]
-  >,
-): TimedLine[] => {
-  return texts.map(
-    ([time, text, note, tone]) => ({
-      time,
-      text,
-      note,
-      tone,
-    }),
-  );
-};
+  data: Array<[number, string, string?, LineTone?]>,
+): TimedLine[] =>
+  data.map(([time, text, note, tone]) => ({
+    time,
+    text,
+    note,
+    tone,
+  }));
 
 const setlist: Track[] = [
   {
@@ -149,27 +137,12 @@ const setlist: Track[] = [
       [21, "Red fever comin' up"],
       [22, "We're going M.I.A"],
 
-      [
-        24,
-        "Ah, ppalgake pi mudeun suit and tie, drive",
-      ],
-      [
-        29,
-        "Heart is reckless, gingin daero wiro balba",
-      ],
-      [
-        33,
-        "Love is spinnin' when you're by my side",
-      ],
-      [
-        35,
-        "Tteugeopge, watch me take off and fly",
-      ],
+      [24, "Ah, ppalgake pi mudeun suit and tie, drive"],
+      [29, "Heart is reckless, gingin daero wiro balba"],
+      [33, "Love is spinnin' when you're by my side"],
+      [35, "Tteugeopge, watch me take off and fly"],
 
-      [
-        38,
-        "You wanna? Come touch me, party-arty",
-      ],
+      [38, "You wanna? Come touch me, party-arty"],
       [40, "Hae tteul ttaekkaji uri"],
       [42, "Come touch me, party-arty"],
       [44, "In our bloody paradise"],
@@ -194,27 +167,12 @@ const setlist: Track[] = [
       [74, "The sun is comin' up"],
       [76, "We're going M.I.A"],
 
-      [
-        78,
-        "Ah, ppalgake pi mudeun suit and tie, drive",
-      ],
-      [
-        83,
-        "Heart is reckless, gingin daero wiro balba",
-      ],
-      [
-        86,
-        "Love is spinnin' when you're by my side",
-      ],
-      [
-        89,
-        "Tteugeopge, watch me take off and fly",
-      ],
+      [78, "Ah, ppalgake pi mudeun suit and tie, drive"],
+      [83, "Heart is reckless, gingin daero wiro balba"],
+      [86, "Love is spinnin' when you're by my side"],
+      [89, "Tteugeopge, watch me take off and fly"],
 
-      [
-        92,
-        "You wanna? Come touch me, party-arty",
-      ],
+      [92, "You wanna? Come touch me, party-arty"],
       [94, "Hae tteul ttaekkaji uri"],
       [96, "Come touch me, party-arty"],
       [97, "In our bloody paradise"],
@@ -229,10 +187,7 @@ const setlist: Track[] = [
       [111, "Ooh, FLY YA YA YA YA"],
       [113, "Do your dance like that"],
 
-      [
-        114,
-        "Woah-ooh, FLY YA YA YA YA",
-      ],
+      [114, "Woah-ooh, FLY YA YA YA YA"],
       [116, "Ooh, FLY YA YA YA YA"],
       [118, "Ooh, FLY YA YA YA YA"],
       [120, "Do your dance like that"],
@@ -303,410 +258,167 @@ const setlist: Track[] = [
     videoId: "tWM5t3_v8KA",
 
     lyrics: lines([
-      [
-        0,
-        "The room is bright enough to see you",
-        "opening",
-      ],
-      [
-        24,
-        "Every little voice becomes a choir",
-        "verse",
-      ],
-      [
-        55,
-        "Keep the home light burning",
-        "chorus",
-      ],
-      [
-        94,
-        "We will carry what we came here for",
-        "chorus",
-      ],
-      [
-        133,
-        "If you get lost, look for the windows",
-        "bridge",
-      ],
-      [
-        176,
-        "Keep the home light burning",
-        "final chorus",
-      ],
-      [
-        220,
-        "Goodnight, goodnight, goodnight",
-        "close",
-      ],
+      [0, "The room is bright enough to see you", "opening"],
+      [24, "Every little voice becomes a choir", "verse"],
+      [55, "Keep the home light burning", "chorus"],
+      [94, "We will carry what we came here for", "chorus"],
+      [133, "If you get lost, look for the windows", "bridge"],
+      [176, "Keep the home light burning", "final chorus"],
+      [220, "Goodnight, goodnight, goodnight", "close"],
     ]),
 
     fanchant: lines([
       [0, "HEY! HEY!", "opening"],
       [55, "HOME LIGHT!", "response"],
       [94, "CARRY IT HOME!", "all fans"],
-      [
-        133,
-        "LOOK FOR THE WINDOWS!",
-        "call",
-      ],
-      [
-        176,
-        "HOME LIGHT!",
-        "final response",
-      ],
+      [133, "LOOK FOR THE WINDOWS!", "call"],
+      [176, "HOME LIGHT!", "final response"],
       [220, "GOODNIGHT!", "close"],
     ]),
   },
 ];
 
-function formatTime(seconds: number): string {
-  const safeSeconds = Math.max(
-    0,
-    Math.floor(seconds),
-  );
+const normalizeText = (text: string) =>
+  text
+    .toLowerCase()
+    .replace(/[’']/g, "'")
+    .replace(/\s+/g, " ")
+    .trim();
 
-  const minutes = Math.floor(
-    safeSeconds / 60,
-  );
+function formatTime(seconds: number) {
+  const safe = Math.max(0, Math.floor(seconds));
+  const minutes = Math.floor(safe / 60);
+  const remainder = safe % 60;
 
-  const remainder = safeSeconds % 60;
-
-  return (
-    String(minutes) +
-    ":" +
-    String(remainder).padStart(2, "0")
-  );
+  return `${minutes}:${String(remainder).padStart(2, "0")}`;
 }
 
-/*
- * MAIN APP COMPONENT
- *
- * This MUST be called App because the file
- * exports "default App" at the bottom.
- */
 function App() {
-  const [videoId, setVideoId] =
-    useState<string>(INITIAL_VIDEO_ID);
+  const [videoId, setVideoId] = useState(INITIAL_VIDEO_ID);
+  const [selectedId, setSelectedId] = useState(setlist[0].id);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [playbackSeconds, setPlaybackSeconds] = useState(0);
+  const [duration, setDuration] = useState(FALLBACK_DURATION);
+  const [apiReady, setApiReady] = useState(false);
+  const [apiFailed, setApiFailed] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [isLiked, setIsLiked] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
 
-  const [selectedId, setSelectedId] =
-    useState(setlist[0].id);
+  const playerHostRef = useRef<HTMLDivElement>(null);
+  const playerRef = useRef<YouTubePlayer | null>(null);
+  const timerRef = useRef<number | null>(null);
+  const activeLineRef = useRef<HTMLButtonElement | null>(null);
+  const autoplayRef = useRef(false);
+  const playerCreatedRef = useRef(false);
+  const loadedVideoRef = useRef<string | null>(null);
 
-  const [isPlaying, setIsPlaying] =
-    useState(false);
-
-  const [playbackSeconds, setPlaybackSeconds] =
-    useState(0);
-
-  const [duration, setDuration] =
-    useState(FALLBACK_DURATION);
-
-  const [apiReady, setApiReady] =
-    useState(false);
-
-  const [apiFailed, setApiFailed] =
-    useState(false);
-
-  const [copied, setCopied] =
-    useState(false);
-
-  const [isLiked, setIsLiked] =
-    useState(false);
-
-  const [isMuted, setIsMuted] =
-    useState(false);
-
-  const playerHostRef =
-    useRef<HTMLDivElement>(null);
-
-  const playerRef =
-    useRef<YouTubePlayer | null>(null);
-
-  const fallbackTimerRef =
-    useRef<number | null>(null);
-
-  const activeLineRef =
-    useRef<HTMLButtonElement | null>(null);
-
-  const autoplayTrackRef =
-    useRef(false);
-
-  const initialPlayerCreatedRef =
-    useRef(false);
-
-  const lastLoadedVideoIdRef =
-    useRef<string | null>(null);
-
-  const selectedTrack = useMemo(() => {
-    const found = setlist.find(
-      (track) => track.id === selectedId,
-    );
-
-    return found ?? setlist[0];
-  }, [selectedId]);
+  const selectedTrack = useMemo(
+    () =>
+      setlist.find((track) => track.id === selectedId) ??
+      setlist[0],
+    [selectedId],
+  );
 
   /*
-   * Find lyric/fanchant overlaps by TIME.
-   *
-   * If a fanchant happens within 2 seconds
-   * of a lyric, they are treated as ONE
-   * sing-along cue.
-   *
-   * The words do NOT need to match.
+   * Match only fanchants whose actual words appear
+   * inside a lyric. Standalone member-name chants
+   * therefore remain standalone.
    */
-  const normalizeText = (text: string) =>
-    text
-      .toLowerCase()
-      .replace(/[’']/g, "'")
-      .replace(/\s+/g, " ")
-      .trim();
-
   const fanchantData = useMemo(() => {
     const assignments = new Map<number, TimedLine[]>();
-    const assignedFanchants = new Set<TimedLine>();
+    const assigned = new Set<TimedLine>();
 
     selectedTrack.fanchant.forEach((chant) => {
-      const normalizedChant = normalizeText(chant.text);
-
-      let bestLyricIndex = -1;
+      const chantText = normalizeText(chant.text);
+      let bestIndex = -1;
       let bestDistance = Infinity;
 
-      selectedTrack.lyrics.forEach((lyric, lyricIndex) => {
-        const normalizedLyric = normalizeText(lyric.text);
+      selectedTrack.lyrics.forEach((lyric, index) => {
+        const lyricText = normalizeText(lyric.text);
 
-        /*
-         * Only attach the fanchant when its actual words
-         * exist inside the lyric.
-         *
-         * This prevents:
-         *
-         * 121 YANG JUNGWON... -> being attached to "Shh"
-         * 123 SIM JAEYUN...   -> being attached to "Shh"
-         * etc.
-         */
-        if (!normalizedLyric.includes(normalizedChant)) {
-          return;
-        }
+        if (!lyricText.includes(chantText)) return;
 
         const distance = Math.abs(chant.time - lyric.time);
 
-        if (distance < bestDistance) {
+        if (distance < bestDistance && distance <= 3) {
           bestDistance = distance;
-          bestLyricIndex = lyricIndex;
+          bestIndex = index;
         }
       });
 
-      /*
-       * Only attach a matching fanchant if it is reasonably
-       * close to the lyric cue.
-       */
-      if (bestLyricIndex !== -1 && bestDistance <= 3) {
-        const existing = assignments.get(bestLyricIndex) ?? [];
-
+      if (bestIndex !== -1) {
+        const existing = assignments.get(bestIndex) ?? [];
         existing.push(chant);
-        assignments.set(bestLyricIndex, existing);
-
-        assignedFanchants.add(chant);
+        assignments.set(bestIndex, existing);
+        assigned.add(chant);
       }
     });
 
-    return {
-      assignments,
-      assignedFanchants,
-    };
+    return { assignments, assigned };
   }, [selectedTrack]);
 
-  const getLyricParts = (
-    lyric: TimedLine,
-    fanchant?: TimedLine,
-  ) => {
-    if (!fanchant) {
-      return {
-        before: lyric.text,
-        chant: "",
-        after: "",
-      };
-    }
-
-    const lyricText = lyric.text;
-    const chantText = fanchant.text;
-
-    /*
-      Exact match:
-      The entire lyric is the fanchant.
-
-      Example:
-      LYRIC:    We're going M.I.A
-      FANCHANT: We're going M.I.A
-    */
-    if (
-      lyricText.trim().toLowerCase() ===
-      chantText.trim().toLowerCase()
-    ) {
-      return {
-        before: "",
-        chant: lyricText,
-        after: "",
-      };
-    }
-
-    /*
-      Partial match:
-      Find the fanchant words inside the lyric.
-
-      Example:
-
-      LYRIC:
-      Tteugeopge, watch me take off and fly
-
-      FANCHANT:
-      Tteugeopge, watch me take
-
-      Result:
-
-      before: ""
-      chant:  "Tteugeopge, watch me take"
-      after:  " off and fly"
-    */
-
-    const lyricLower =
-      lyricText.toLowerCase();
-
-    const chantLower =
-      chantText.toLowerCase();
-
-    const startIndex =
-      lyricLower.indexOf(chantLower);
-
-    if (startIndex === -1) {
-      /*
-        If the fanchant text isn't actually
-        inside the lyric, don't merge it.
-      */
-      return {
-        before: lyricText,
-        chant: "",
-        after: "",
-      };
-    }
-
-    const endIndex =
-      startIndex + chantText.length;
-
-    return {
-      before: lyricText.slice(
-        0,
-        startIndex,
-      ),
-      chant: lyricText.slice(
-        startIndex,
-        endIndex,
-      ),
-      after: lyricText.slice(endIndex),
-    };
-  };
   /*
-   * Build the visible transcript.
-   *
-   * LYRIC + FANCHANT at the same time:
-   *     ORANGE / SING-ALONG
-   *
-   * LYRIC by itself:
-   *     BLACK / LYRIC
-   *
-   * FANCHANT by itself:
-   *     GREEN / FANCHANT
+   * Build lyrics + fanchant portions.
    */
-  
   const transcriptLines = useMemo<TranscriptLine[]>(() => {
-    const lyricLines = selectedTrack.lyrics.map(
-      (line: TimedLine, lyricIndex: number) => {
-        const attachedFanchants =
+    const lyricLines: TranscriptLine[] = selectedTrack.lyrics.map(
+      (line, lyricIndex) => {
+        const chants =
           fanchantData.assignments.get(lyricIndex) ?? [];
 
-        /*
-         * If there is no matching fanchant, this is simply
-         * a normal lyric.
-         */
-        if (attachedFanchants.length === 0) {
+        if (!chants.length) {
           return {
             ...line,
-            tone: "lyric" as const,
-            source: "LYRIC" as const,
+            source: "LYRIC",
+            tone: "lyric",
             lyricIndex,
             hasFanchant: false,
             segments: [
               {
                 text: line.text,
-                tone: "lyric" as const,
+                tone: "lyric",
               },
             ],
           };
         }
 
-        /*
-         * Build the lyric from pieces.
-         *
-         * Example:
-         *
-         * Tteugeopge, watch me take | off and fly
-         *
-         * The first part is the fanchant.
-         * The second part remains the normal lyric.
-         */
-        const matches = attachedFanchants
+        const matches = chants
           .map((chant) => {
-            const lyricText = line.text;
-            const chantText = chant.text;
+            const start = line.text
+              .toLowerCase()
+              .indexOf(chant.text.toLowerCase());
 
-            const lyricIndexInText = normalizeText(lyricText).indexOf(
-              normalizeText(chantText),
-            );
-
-            if (lyricIndexInText === -1) {
-              return null;
-            }
-
-            /*
-             * Find the actual character position in the original
-             * lyric text, preserving capitalization and punctuation.
-             */
-            const lowerLyric = lyricText.toLowerCase();
-            const lowerChant = chantText.toLowerCase();
-
-            const originalStart = lowerLyric.indexOf(lowerChant);
-
-            if (originalStart === -1) {
-              return null;
-            }
+            if (start === -1) return null;
 
             return {
               chant,
-              start: originalStart,
-              end: originalStart + chantText.length,
+              start,
+              end: start + chant.text.length,
             };
           })
           .filter(
             (
-              match,
-            ): match is {
+              item,
+            ): item is {
               chant: TimedLine;
               start: number;
               end: number;
-            } => match !== null,
+            } => item !== null,
           )
           .sort((a, b) => a.start - b.start);
 
-        if (matches.length === 0) {
+        if (!matches.length) {
           return {
             ...line,
-            tone: "lyric" as const,
-            source: "LYRIC" as const,
+            source: "LYRIC",
+            tone: "lyric",
             lyricIndex,
             hasFanchant: false,
             segments: [
               {
                 text: line.text,
-                tone: "lyric" as const,
+                tone: "lyric",
               },
             ],
           };
@@ -716,12 +428,7 @@ function App() {
         let cursor = 0;
 
         matches.forEach((match) => {
-          /*
-           * Prevent overlapping/duplicate text.
-           */
-          if (match.start < cursor) {
-            return;
-          }
+          if (match.start < cursor) return;
 
           if (match.start > cursor) {
             segments.push({
@@ -748,8 +455,8 @@ function App() {
 
         return {
           ...line,
-          tone: "singalong" as const,
-          source: "LYRIC" as const,
+          source: "LYRIC",
+          tone: "singalong",
           lyricIndex,
           hasFanchant: true,
           segments,
@@ -757,17 +464,12 @@ function App() {
       },
     );
 
-    /*
-     * Fanchants that were NOT matched to any lyric
-     * remain as their own separate transcript lines.
-     */
-    const standaloneFanchants = selectedTrack.fanchant
-      .filter((chant) => !fanchantData.assignedFanchants.has(chant))
+    const standalone = selectedTrack.fanchant
+      .filter((chant) => !fanchantData.assigned.has(chant))
       .map((chant) => ({
         ...chant,
-        tone: "chant" as const,
         source: "FANCHANT" as const,
-        hasFanchant: false,
+        tone: "chant" as const,
         segments: [
           {
             text: chant.text,
@@ -777,495 +479,271 @@ function App() {
         ],
       }));
 
-    return [...lyricLines, ...standaloneFanchants].sort((a, b) => {
-      if (a.time !== b.time) {
-        return a.time - b.time;
-      }
+    return [...lyricLines, ...standalone].sort((a, b) => {
+      if (a.time !== b.time) return a.time - b.time;
 
-      /*
-       * If a lyric and standalone fanchant somehow share
-       * the exact same timestamp, keep the lyric first.
-       */
       if (a.source === "LYRIC" && b.source === "FANCHANT") {
         return -1;
       }
 
-      if (a.source === "FANCHANT" && b.source === "LYRIC") {
-        return 1;
-      }
-
-      return 0;
+      return 1;
     });
   }, [selectedTrack, fanchantData]);
+
   /*
-   * Determine the current cue.
-   *
-   * The most recent cue at or before the
-   * current video time is active.
+   * The current ROW is based only on the line's timestamp.
    */
-
   const activeCueTime = useMemo(() => {
-    if (transcriptLines.length === 0) {
-      return -1;
-    }
-
-    let cueTime = -1;
+    let active = -1;
 
     transcriptLines.forEach((line) => {
       if (line.time <= playbackSeconds) {
-        cueTime = Math.max(cueTime, line.time);
+        active = line.time;
       }
     });
 
-    return cueTime;
+    return active;
   }, [transcriptLines, playbackSeconds]);
+
   const progress =
     duration > 0
-      ? Math.min(
-          100,
-          (playbackSeconds / duration) *
-            100,
-        )
+      ? Math.min(100, (playbackSeconds / duration) * 100)
       : 0;
 
   /*
-   * Load YouTube API.
+   * YouTube API.
    */
   useEffect(() => {
     let cancelled = false;
 
-    const existingScript =
-      document.querySelector(
-        'script[src="https://www.youtube.com/iframe_api"]',
-      );
-
-    const checkExistingApi =
-      window.setInterval(() => {
-        if (
-          window.YT &&
-          window.YT.Player
-        ) {
-          window.clearInterval(
-            checkExistingApi,
-          );
-
-          if (!cancelled) {
-            setApiReady(true);
-          }
-        }
-      }, 100);
-
-    const timeout = window.setTimeout(
-      () => {
-        window.clearInterval(
-          checkExistingApi,
-        );
-
-        if (
-          !window.YT?.Player &&
-          !cancelled
-        ) {
-          setApiFailed(true);
-        }
-      },
-      8000,
+    const existing = document.querySelector(
+      'script[src="https://www.youtube.com/iframe_api"]',
     );
 
-    const previousCallback =
-      window.onYouTubeIframeAPIReady;
+    const interval = window.setInterval(() => {
+      if (window.YT?.Player) {
+        window.clearInterval(interval);
+        if (!cancelled) setApiReady(true);
+      }
+    }, 100);
 
-    window.onYouTubeIframeAPIReady =
-      () => {
-        if (previousCallback) {
-          previousCallback();
-        }
+    const timeout = window.setTimeout(() => {
+      window.clearInterval(interval);
 
-        if (!cancelled) {
-          window.clearTimeout(timeout);
-          setApiReady(true);
-        }
-      };
+      if (!window.YT?.Player && !cancelled) {
+        setApiFailed(true);
+      }
+    }, 8000);
 
-    if (
-      !existingScript &&
-      !window.YT?.Player
-    ) {
-      const script =
-        document.createElement(
-          "script",
-        );
+    const previous = window.onYouTubeIframeAPIReady;
 
-      script.src =
-        "https://www.youtube.com/iframe_api";
+    window.onYouTubeIframeAPIReady = () => {
+      previous?.();
 
+      if (!cancelled) {
+        window.clearTimeout(timeout);
+        setApiReady(true);
+      }
+    };
+
+    if (!existing && !window.YT?.Player) {
+      const script = document.createElement("script");
+      script.src = "https://www.youtube.com/iframe_api";
       script.async = true;
-
       document.body.appendChild(script);
-    } else if (window.YT?.Player) {
-      window.clearTimeout(timeout);
-      window.clearInterval(
-        checkExistingApi,
-      );
-      setApiReady(true);
     }
 
     return () => {
       cancelled = true;
-
       window.clearTimeout(timeout);
-      window.clearInterval(
-        checkExistingApi,
-      );
-
-      window.onYouTubeIframeAPIReady =
-        previousCallback;
+      window.clearInterval(interval);
+      window.onYouTubeIframeAPIReady = previous;
     };
   }, []);
 
   /*
-   * Create YouTube player once.
-   *
-   * The initial video is PAUSED.
+   * Create player once.
    */
   useEffect(() => {
     if (
       !apiReady ||
       !window.YT?.Player ||
       !playerHostRef.current ||
-      initialPlayerCreatedRef.current
+      playerCreatedRef.current
     ) {
       return;
     }
 
-    initialPlayerCreatedRef.current =
-      true;
+    playerCreatedRef.current = true;
 
-    const player =
-      new window.YT.Player(
-        playerHostRef.current,
-        {
-          videoId,
+    const player = new window.YT.Player(
+      playerHostRef.current,
+      {
+        videoId,
+        playerVars: {
+          autoplay: 0,
+          controls: 0,
+          modestbranding: 1,
+          rel: 0,
+          playsinline: 1,
+        },
+        events: {
+          onReady: () => {
+            playerRef.current = player;
+            loadedVideoRef.current = videoId;
 
-          playerVars: {
-            autoplay: 0,
-            controls: 0,
-            modestbranding: 1,
-            rel: 0,
-            playsinline: 1,
+            const d = player.getDuration?.();
+
+            if (d && d > 0) {
+              setDuration(d);
+            }
+
+            setPlaybackSeconds(0);
+
+            if (autoplayRef.current) {
+              autoplayRef.current = false;
+              player.playVideo?.();
+            }
           },
 
-          events: {
-            onReady: () => {
-              playerRef.current =
-                player;
+          onStateChange: (event) => {
+            const state = window.YT?.PlayerState;
 
-              lastLoadedVideoIdRef.current =
-                videoId;
+            if (event.data === state?.PLAYING) {
+              setIsPlaying(true);
+            }
 
-              const apiDuration =
-                player.getDuration?.();
+            if (
+              event.data === state?.PAUSED ||
+              event.data === state?.ENDED
+            ) {
+              setIsPlaying(false);
+            }
 
-              if (
-                apiDuration &&
-                apiDuration > 0
-              ) {
-                setDuration(
-                  apiDuration,
-                );
-              }
-
-              setPlaybackSeconds(0);
-
-              const shouldAutoplay =
-                autoplayTrackRef.current;
-
-              autoplayTrackRef.current =
-                false;
-
-              if (shouldAutoplay) {
-                player.playVideo?.();
-              } else {
-                setIsPlaying(false);
-              }
-            },
-
-            onStateChange: (
-              event,
-            ) => {
-              const state =
-                window.YT?.PlayerState;
-
-              if (
-                event.data ===
-                state?.PLAYING
-              ) {
-                setIsPlaying(true);
-              }
-
-              if (
-                event.data ===
-                  state?.PAUSED ||
-                event.data ===
-                  state?.ENDED
-              ) {
-                setIsPlaying(false);
-              }
-
-              if (
-                event.data ===
-                state?.ENDED
-              ) {
-                const endedDuration =
-                  playerRef.current?.getDuration?.();
-
-                setPlaybackSeconds(
-                  endedDuration &&
-                    endedDuration > 0
-                    ? endedDuration
-                    : FALLBACK_DURATION,
-                );
-              }
-            },
+            if (event.data === state?.ENDED) {
+              setPlaybackSeconds(
+                player.getDuration?.() ?? FALLBACK_DURATION,
+              );
+            }
           },
         },
-      );
+      },
+    );
 
     playerRef.current = player;
   }, [apiReady]);
 
   /*
-   * Change video without destroying
-   * the YouTube player.
+   * Load selected video.
    */
   useEffect(() => {
-    if (
-      !apiReady ||
-      !playerRef.current
-    ) {
-      return;
-    }
+    if (!apiReady || !playerRef.current) return;
 
-    const player =
-      playerRef.current;
+    if (loadedVideoRef.current === videoId) return;
 
-    if (
-      lastLoadedVideoIdRef.current ===
-      videoId
-    ) {
-      return;
-    }
-
-    lastLoadedVideoIdRef.current =
-      videoId;
-
+    loadedVideoRef.current = videoId;
     setPlaybackSeconds(0);
-    setDuration(
-      FALLBACK_DURATION,
-    );
+    setDuration(FALLBACK_DURATION);
 
-    player.loadVideoById?.(
-      videoId,
-    );
+    playerRef.current.loadVideoById?.(videoId);
   }, [apiReady, videoId]);
 
   /*
    * Playback clock.
    */
   useEffect(() => {
-    if (
-      fallbackTimerRef.current !==
-      null
-    ) {
-      window.clearInterval(
-        fallbackTimerRef.current,
-      );
-
-      fallbackTimerRef.current =
-        null;
+    if (timerRef.current !== null) {
+      window.clearInterval(timerRef.current);
+      timerRef.current = null;
     }
 
-    if (!isPlaying) {
-      return;
-    }
+    if (!isPlaying) return;
 
-    fallbackTimerRef.current =
-      window.setInterval(() => {
-        const player =
-          playerRef.current;
+    timerRef.current = window.setInterval(() => {
+      const player = playerRef.current;
 
-        if (player) {
-          const current =
-            player.getCurrentTime?.() ??
-            0;
+      if (!player) return;
 
-          const currentDuration =
-            player.getDuration?.() ??
-            duration;
+      const current = player.getCurrentTime?.() ?? 0;
+      const currentDuration =
+        player.getDuration?.() ?? duration;
 
-          setPlaybackSeconds(
-            current,
-          );
+      setPlaybackSeconds(current);
 
-          if (currentDuration > 0) {
-            setDuration(
-              currentDuration,
-            );
-          }
-        } else {
-          setPlaybackSeconds(
-            (current) => {
-              if (
-                current >=
-                FALLBACK_DURATION
-              ) {
-                return 0;
-              }
-
-              return current + 0.25;
-            },
-          );
-        }
-      }, 250);
+      if (currentDuration > 0) {
+        setDuration(currentDuration);
+      }
+    }, 100);
 
     return () => {
-      if (
-        fallbackTimerRef.current !==
-        null
-      ) {
-        window.clearInterval(
-          fallbackTimerRef.current,
-        );
-
-        fallbackTimerRef.current =
-          null;
+      if (timerRef.current !== null) {
+        window.clearInterval(timerRef.current);
+        timerRef.current = null;
       }
     };
-  }, [
-    duration,
-    isPlaying,
-  ]);
+  }, [isPlaying, duration]);
 
   /*
-   * Keep the current cue centered.
+   * Scroll current row into view.
    */
   useEffect(() => {
-    if (activeLineRef.current) {
-      activeLineRef.current.scrollIntoView(
-        {
-          behavior: "smooth",
-          block: "center",
-        },
-      );
-    }
-  }, [
-    activeCueTime,
-    selectedId,
-  ]);
-  /*
-   * Destroy player on unmount.
-   */
+    activeLineRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+    });
+  }, [activeCueTime, selectedId]);
+
   useEffect(() => {
     return () => {
-      if (
-        fallbackTimerRef.current !==
-        null
-      ) {
-        window.clearInterval(
-          fallbackTimerRef.current,
-        );
+      if (timerRef.current !== null) {
+        window.clearInterval(timerRef.current);
       }
 
       playerRef.current?.destroy?.();
-
       playerRef.current = null;
     };
   }, []);
 
-  /*
-   * Select a track.
-   *
-   * Clicking a track automatically
-   * starts playback.
-   */
-  const chooseTrack = (
-    track: Track,
-  ) => {
+  const chooseTrack = (track: Track) => {
     setSelectedId(track.id);
-
     setPlaybackSeconds(0);
-    setDuration(
-      FALLBACK_DURATION,
-    );
+    setDuration(FALLBACK_DURATION);
+    setVideoId(track.videoId);
 
-    const player =
-      playerRef.current;
-
-    if (player && apiReady) {
-      lastLoadedVideoIdRef.current =
-        track.videoId;
-
-      setVideoId(track.videoId);
-
-      player.loadVideoById?.(
-        track.videoId,
-      );
-
-      player.playVideo?.();
+    if (playerRef.current && apiReady) {
+      loadedVideoRef.current = track.videoId;
+      playerRef.current.loadVideoById?.(track.videoId);
+      playerRef.current.playVideo?.();
     } else {
-      autoplayTrackRef.current =
-        true;
-
-      setVideoId(track.videoId);
+      autoplayRef.current = true;
       setIsPlaying(false);
     }
   };
 
-  /*
-   * Play / pause.
-   */
-  const togglePlayback =
-    useCallback(() => {
-      const player =
-        playerRef.current;
+  const togglePlayback = useCallback(() => {
+    const player = playerRef.current;
 
-      if (!player) {
-        setIsPlaying(
-          (playing) => !playing,
-        );
+    if (!player) {
+      setIsPlaying((value) => !value);
+      return;
+    }
 
-        return;
-      }
+    if (isPlaying) {
+      player.pauseVideo?.();
+    } else {
+      player.playVideo?.();
+    }
+  }, [isPlaying]);
 
-      if (isPlaying) {
-        player.pauseVideo?.();
-      } else {
-        player.playVideo?.();
-      }
-    }, [isPlaying]);
-
-  /*
-   * Seek.
-   */
   const seekTo = useCallback(
     (seconds: number) => {
-      const safeSeconds =
-        Math.max(
-          0,
-          Math.min(
-            seconds,
-            duration ||
-              FALLBACK_DURATION,
-          ),
-        );
-
-      setPlaybackSeconds(
-        safeSeconds,
+      const safe = Math.max(
+        0,
+        Math.min(seconds, duration || FALLBACK_DURATION),
       );
 
-      playerRef.current?.seekTo?.(
-        safeSeconds,
-        true,
-      );
+      setPlaybackSeconds(safe);
+      playerRef.current?.seekTo?.(safe, true);
     },
     [duration],
   );
@@ -1273,73 +751,40 @@ function App() {
   const handleProgressChange = (
     event: ChangeEvent<HTMLInputElement>,
   ) => {
-    seekTo(
-      Number(event.target.value),
-    );
+    seekTo(Number(event.target.value));
   };
 
-  /*
-   * Share session.
-   */
-  const copySessionLink =
-    async () => {
-      try {
-        await navigator.clipboard.writeText(
-          window.location.href,
-        );
+  const copySessionLink = async () => {
+    try {
+      await navigator.clipboard.writeText(
+        window.location.href,
+      );
 
-        setCopied(true);
+      setCopied(true);
 
-        window.setTimeout(() => {
-          setCopied(false);
-        }, 1800);
-      } catch {
+      window.setTimeout(() => {
         setCopied(false);
-      }
-    };
+      }, 1800);
+    } catch {
+      setCopied(false);
+    }
+  };
 
-  /*
-   * Mute / unmute.
-   */
   const toggleMute = () => {
-    const player =
-      playerRef.current;
-
-    if (player) {
-      if (isMuted) {
-        player.unMuteVideo?.();
-      } else {
-        player.muteVideo?.();
-      }
+    if (isMuted) {
+      playerRef.current?.unMuteVideo?.();
+    } else {
+      playerRef.current?.muteVideo?.();
     }
 
-    setIsMuted(
-      (muted) => !muted,
-    );
-  };
-
-  const tracksBySection = (
-    section: Track["section"],
-  ) => {
-    return setlist.filter(
-      (track) =>
-        track.section === section,
-    );
+    setIsMuted((value) => !value);
   };
 
   return (
     <div className="studio-shell">
       <header className="studio-topbar">
-        <div
-          className="brand-lockup"
-          data-testid="display-brand"
-        >
-          <div
-            className="brand-mark"
-            aria-hidden="true"
-          >
-            VL
-          </div>
+        <div className="brand-lockup">
+          <div className="brand-mark">VL</div>
 
           <span className="brand-name">
             Video Lyrics Studio
@@ -1350,55 +795,31 @@ function App() {
           </span>
         </div>
 
-        <div
-          className="topbar-status"
-          data-testid="status-session"
-        >
-          <span
-            className="status-dot"
-            aria-hidden="true"
-          />
-
+        <div className="topbar-status">
+          <span className="status-dot" />
           room ready /{" "}
-          {apiReady
-            ? "player synced"
-            : "demo clock"}
+          {apiReady ? "player synced" : "demo clock"}
         </div>
 
         <button
           className="share-button"
-          data-testid="button-share-session"
           onClick={copySessionLink}
           type="button"
         >
-          {copied ? (
-            <Check size={14} />
-          ) : (
-            <Share2 size={14} />
-          )}
-
-          {copied
-            ? "Copied"
-            : "Share room"}
+          {copied ? <Check size={14} /> : <Share2 size={14} />}
+          {copied ? "Copied" : "Share room"}
         </button>
       </header>
 
       <main className="app-main">
-        <section
-          className="room-heading"
-          aria-labelledby="page-title"
-        >
+        <section className="room-heading">
           <div>
-            <div
-              className="eyebrow"
-              data-testid="text-room-kicker"
-            >
+            <div className="eyebrow">
               ENHYPEN / fanchant
             </div>
 
-            <h1 id="page-title">
-              Let our voices reach{" "}
-              <em>ENHYPEN.</em>
+            <h1>
+              Let our voices reach <em>ENHYPEN.</em>
             </h1>
           </div>
 
@@ -1406,19 +827,14 @@ function App() {
             <span className="heading-rule" />
 
             <p>
-              Fanchants made easy for
-              every ENGENE.
+              Fanchants made easy for every ENGENE.
               <br />
-              Learn It. Chant It. Make It
-              LOUD.
+              Learn It. Chant It. Make It LOUD.
             </p>
           </div>
         </section>
 
-        <section
-          className="legend-strip"
-          aria-label="Transcript color legend"
-        >
+        <section className="legend-strip">
           <span className="legend-title">
             quick guide
           </span>
@@ -1445,19 +861,12 @@ function App() {
 
           <span className="legend-track">
             <ListMusic size={13} />
-            {setlist.length} songs in
-            this playlist
+            {setlist.length} songs in this playlist
           </span>
         </section>
 
-        <section
-          className="workspace"
-          aria-label="Setlist, performance player, and synchronized transcript"
-        >
-          <aside
-            className="setlist-panel"
-            data-testid="panel-setlist"
-          >
+        <section className="workspace">
+          <aside className="setlist-panel">
             <div className="panel-cap">
               <span className="eyebrow">
                 ENGENEs PLAYLIST
@@ -1475,82 +884,49 @@ function App() {
             </h2>
 
             <p className="setlist-intro">
-              Your personal fanchant cue
-              sheet for the performance.
+              Your personal fanchant cue sheet for the
+              performance.
             </p>
 
             <div className="setlist-sections">
-              {(["SONGS"] as const).map(
-                (section) => (
-                  <section
-                    className="set-section"
-                    key={section}
-                  >
-                    <div className="section-heading">
-                      <span>
-                        {section}
+              <section className="set-section">
+                <div className="section-heading">
+                  SONGS
+                  <i />
+                </div>
+
+                <div className="set-rows">
+                  {setlist.map((track) => (
+                    <button
+                      className={
+                        selectedId === track.id
+                          ? "set-row selected"
+                          : "set-row"
+                      }
+                      key={track.id}
+                      onClick={() => chooseTrack(track)}
+                      type="button"
+                    >
+                      <span className="set-number">
+                        {String(track.number).padStart(2, "0")}
                       </span>
 
-                      <i />
-                    </div>
+                      <span className="set-song">
+                        {track.title}
+                      </span>
 
-                    <div className="set-rows">
-                      {tracksBySection(
-                        section,
-                      ).map(
-                        (track) => (
-                          <button
-                            className={
-                              selectedId ===
-                              track.id
-                                ? "set-row selected"
-                                : "set-row"
-                            }
-                            data-testid={
-                              "button-setlist-" +
-                              track.id
-                            }
-                            key={track.id}
-                            onClick={() =>
-                              chooseTrack(
-                                track,
-                              )
-                            }
-                            type="button"
-                          >
-                            <span className="set-number">
-                              {String(
-                                track.number,
-                              ).padStart(
-                                2,
-                                "0",
-                              )}
-                            </span>
-
-                            <span className="set-song">
-                              {track.title}
-                            </span>
-
-                            <span className="set-duration">
-                              {
-                                track.duration
-                              }
-                            </span>
-                          </button>
-                        ),
-                      )}
-                    </div>
-                  </section>
-                ),
-              )}
+                      <span className="set-duration">
+                        {track.duration}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </section>
             </div>
           </aside>
 
           <div className="performance-column">
-            <article
-              className="stage-card"
-              data-testid="card-performance"
-            >
+            <article className="stage-card">
               <div className="video-wrap">
                 <div
                   className="player-frame"
@@ -1559,46 +935,26 @@ function App() {
 
                 {!apiReady && (
                   <iframe
-                    title={
-                      selectedTrack.title +
-                      " YouTube performance"
-                    }
-                    src={
-                      "https://www.youtube.com/embed/" +
-                      videoId +
-                      "?autoplay=0&rel=0&modestbranding=1&playsinline=1"
-                    }
+                    title={selectedTrack.title}
+                    src={`https://www.youtube.com/embed/${videoId}?autoplay=0&rel=0&modestbranding=1&playsinline=1`}
                     allow="autoplay; encrypted-media; picture-in-picture"
                     allowFullScreen
                   />
                 )}
 
-                {!apiReady &&
-                  !apiFailed && (
-                    <div
-                      className="video-loading"
-                      data-testid="status-video-loading"
-                    >
-                      connecting to the
-                      stage
-                    </div>
-                  )}
+                {!apiReady && !apiFailed && (
+                  <div className="video-loading">
+                    connecting to the stage
+                  </div>
+                )}
 
-                {apiFailed &&
-                  !apiReady && (
-                    <div
-                      className="video-loading"
-                      data-testid="status-video-error"
-                    >
-                      YouTube player
-                      unavailable
-                    </div>
-                  )}
+                {apiFailed && !apiReady && (
+                  <div className="video-loading">
+                    YouTube player unavailable
+                  </div>
+                )}
 
-                <div
-                  className="video-overlay-label"
-                  data-testid="status-video-source"
-                >
+                <div className="video-overlay-label">
                   <span className="video-signal">
                     <Radio size={11} />
                   </span>
@@ -1610,39 +966,27 @@ function App() {
 
                 <div className="video-track-stamp">
                   <span>
-                    {String(
-                      selectedTrack.number,
-                    ).padStart(2, "0")}
+                    {String(selectedTrack.number).padStart(2, "0")}
                   </span>
-
                   {selectedTrack.title}
                 </div>
               </div>
 
               <div className="stage-controls">
                 <div className="progress-track">
-                  <span
-                    className="timestamp"
-                    data-testid="text-current-time"
-                  >
-                    {formatTime(
-                      playbackSeconds,
-                    )}
+                  <span className="timestamp">
+                    {formatTime(playbackSeconds)}
                   </span>
 
                   <input
                     aria-label="Seek performance"
                     className="progress-range"
-                    data-testid="input-seek"
                     max={duration}
                     min="0"
-                    onChange={
-                      handleProgressChange
-                    }
+                    onChange={handleProgressChange}
                     style={
                       {
-                        "--progress":
-                          progress + "%",
+                        "--progress": `${progress}%`,
                       } as CSSProperties
                     }
                     type="range"
@@ -1652,10 +996,7 @@ function App() {
                     )}
                   />
 
-                  <span
-                    className="timestamp"
-                    data-testid="text-duration"
-                  >
+                  <span className="timestamp">
                     {formatTime(duration)}
                   </span>
                 </div>
@@ -1669,10 +1010,7 @@ function App() {
                           : "Play performance"
                       }
                       className="play-button"
-                      data-testid="button-play-pause"
-                      onClick={
-                        togglePlayback
-                      }
+                      onClick={togglePlayback}
                       type="button"
                     >
                       {isPlaying ? (
@@ -1705,52 +1043,37 @@ function App() {
 
                   <div className="control-right">
                     <span className="control-meta">
-                      {apiFailed &&
-                      !apiReady
+                      {apiFailed && !apiReady
                         ? "API unavailable"
                         : "sample performance"}
                     </span>
 
                     <button
                       aria-label={
-                        isMuted
-                          ? "Unmute"
-                          : "Mute"
+                        isMuted ? "Unmute" : "Mute"
                       }
                       className="icon-button"
-                      data-testid="button-toggle-mute"
-                      onClick={
-                        toggleMute
-                      }
+                      onClick={toggleMute}
                       type="button"
                     >
                       {isMuted ? (
-                        <VolumeX
-                          size={15}
-                        />
+                        <VolumeX size={15} />
                       ) : (
-                        <Volume2
-                          size={15}
-                        />
+                        <Volume2 size={15} />
                       )}
                     </button>
 
                     <button
                       aria-label="Expand player"
                       className="icon-button"
-                      data-testid="button-expand-player"
                       onClick={() =>
                         document
-                          .querySelector(
-                            ".video-wrap",
-                          )
+                          .querySelector(".video-wrap")
                           ?.requestFullscreen?.()
                       }
                       type="button"
                     >
-                      <Maximize2
-                        size={15}
-                      />
+                      <Maximize2 size={15} />
                     </button>
                   </div>
                 </div>
@@ -1760,52 +1083,25 @@ function App() {
                 <div className="track-info">
                   <span className="track-kicker">
                     NOW PLAYING / TRACK{" "}
-                    {String(
-                      selectedTrack.number,
-                    ).padStart(2, "0")}
+                    {String(selectedTrack.number).padStart(2, "0")}
                   </span>
 
-                  <h2
-                    className="track-title"
-                    data-testid="text-track-title"
-                  >
-                    {
-                      selectedTrack.title
-                    }
+                  <h2 className="track-title">
+                    {selectedTrack.title}
                   </h2>
 
-                  <p
-                    className="track-artist"
-                    data-testid="text-track-artist"
-                  >
-                    {
-                      selectedTrack.artist
-                    }
-
-                    {selectedTrack.featuredArtist && (
-                      <>
-                        {" "}
-                        <span className="featured-artist">
-                          feat.{" "}
-                          {
-                            selectedTrack.featuredArtist
-                          }
-                        </span>
-                      </>
-                    )}
+                  <p className="track-artist">
+                    {selectedTrack.artist}
                   </p>
                 </div>
 
                 <div className="track-tags">
                   <span className="tag tag-highlight">
-                    {selectedTrack.type ??
-                      "PERFORMANCE"}
+                    {selectedTrack.type ?? "PERFORMANCE"}
                   </span>
 
                   <span className="tag">
-                    {
-                      selectedTrack.duration
-                    }
+                    {selectedTrack.duration}
                   </span>
 
                   <button
@@ -1819,22 +1115,14 @@ function App() {
                         ? "icon-button save-button saved"
                         : "icon-button save-button"
                     }
-                    data-testid="button-save-room"
                     onClick={() =>
-                      setIsLiked(
-                        (liked) =>
-                          !liked,
-                      )
+                      setIsLiked((value) => !value)
                     }
                     type="button"
                   >
                     <Heart
                       size={15}
-                      fill={
-                        isLiked
-                          ? "currentColor"
-                          : "none"
-                      }
+                      fill={isLiked ? "currentColor" : "none"}
                     />
                   </button>
                 </div>
@@ -1842,79 +1130,48 @@ function App() {
             </article>
           </div>
 
-          <aside
-            className="lyrics-card"
-            data-testid="card-lyrics"
-          >
+          <aside className="lyrics-card">
             <div className="lyrics-head">
               <div className="lyrics-headline">
                 <div>
                   <div className="eyebrow">
                     TRACK /{" "}
-                    {String(
-                      selectedTrack.number,
-                    ).padStart(2, "0")}
+                    {String(selectedTrack.number).padStart(2, "0")}
                   </div>
 
                   <h2 className="lyrics-title">
-                    One room. One cue
-                    sheet.
+                    One room. One cue sheet.
                   </h2>
                 </div>
 
-                <div
-                  className="sync-status"
-                  data-testid="status-sync"
-                >
-                  <span
-                    className="live-dot"
-                    aria-hidden="true"
-                  />
-
-                  {apiReady
-                    ? "synced"
-                    : "demo sync"}
+                <div className="sync-status">
+                  <span className="live-dot" />
+                  {apiReady ? "synced" : "demo sync"}
                 </div>
               </div>
 
               <div className="transcript-track">
-                {
-                  selectedTrack.title
-                }{" "}
-                <span>·</span>{" "}
-                {
-                  selectedTrack.artist
-                }
+                {selectedTrack.title}
+                <span>·</span>
+                {selectedTrack.artist}
               </div>
             </div>
 
-            <div
-              className="lyric-scroll"
-              data-testid="list-transcript"
-            >
+            <div className="lyric-scroll">
               {transcriptLines.map((line, index) => {
                 const isActive = line.time === activeCueTime;
-
-                const lineClass =
-                  "lyric-line tone-" +
-                  (line.source === "FANCHANT" ? "chant" : line.tone) +
-                  " source-" +
-                  line.source.toLowerCase() +
-                  (isActive ? " active" : "");
+                const isStandaloneChant = line.source === "FANCHANT";
 
                 return (
                   <button
-                    className={lineClass}
-                    data-testid={"button-transcript-line-" + index}
-                    key={
-                      selectedTrack.id +
-                      "-" +
-                      line.source +
-                      "-" +
-                      line.time +
-                      "-" +
-                      index
+                    className={
+                      "lyric-line " +
+                      (isStandaloneChant
+                        ? "tone-chant"
+                        : `tone-${line.tone}`) +
+                      (isActive ? " active" : "")
                     }
+                    key={`${selectedTrack.id}-${line.source}-${line.time}-${index}`}
                     onClick={() => seekTo(line.time)}
                     ref={isActive ? activeLineRef : undefined}
                     type="button"
@@ -1922,11 +1179,36 @@ function App() {
                     <span className="line-content">
                       <span className="line-text">
                         {line.segments?.map((segment, segmentIndex) => {
-                          if (segment.tone === "lyric") {
+                          if (segment.tone === "chant") {
+                            const chantIsActive =
+                              playbackSeconds >=
+                              (segment.chantTime ?? line.time);
+
+                            /*
+                             * Standalone fanchant:
+                             * ALWAYS GREEN.
+                             *
+                             * Sing-along fanchant:
+                             * GREEN before cue,
+                             * ORANGE after cue.
+                             */
+                            if (isStandaloneChant) {
+                              return (
+                                <span
+                                  className="segment-chant standalone-chant"
+                                  key={segmentIndex}
+                                >
+                                  {segment.text}
+                                </span>
+                              );
+                            }
+
                             return (
                               <span
                                 className={
-                                  isActive ? "segment-lyric active-part" : "segment-lyric"
+                                  chantIsActive
+                                    ? "segment-chant chant-active"
+                                    : "segment-chant"
                                 }
                                 key={segmentIndex}
                               >
@@ -1935,16 +1217,12 @@ function App() {
                             );
                           }
 
-                          const chantIsActive =
-                            segment.chantTime !== undefined &&
-                            playbackSeconds >= segment.chantTime;
-
                           return (
                             <span
                               className={
-                                chantIsActive
-                                  ? "segment-chant chant-active"
-                                  : "segment-chant"
+                                isActive
+                                  ? "segment-lyric lyric-active"
+                                  : "segment-lyric"
                               }
                               key={segmentIndex}
                             >
@@ -1955,11 +1233,16 @@ function App() {
                       </span>
 
                       {line.note && (
-                        <span className="line-note">{line.note}</span>
+                        <span className="line-note">
+                          {line.note}
+                        </span>
                       )}
                     </span>
 
-                    <span className="line-pulse" aria-hidden="true" />
+                    <span
+                      className="line-pulse"
+                      aria-hidden="true"
+                    />
                   </button>
                 );
               })}

@@ -16,30 +16,9 @@
   --color-card: hsl(var(--card));
   --color-card-foreground: hsl(var(--card-foreground));
   --color-card-border: hsl(var(--card-border));
-  --color-popover: hsl(var(--popover));
-  --color-popover-foreground: hsl(var(--popover-foreground));
-  --color-popover-border: hsl(var(--popover-border));
-  --color-primary: hsl(var(--primary));
-  --color-primary-foreground: hsl(var(--primary-foreground));
-  --color-primary-border: var(--primary-border);
-  --color-secondary: hsl(var(--secondary));
-  --color-secondary-foreground: hsl(var(--secondary-foreground));
-  --color-secondary-border: var(--secondary-border);
-  --color-muted: hsl(var(--muted));
-  --color-muted-foreground: hsl(var(--muted-foreground));
-  --color-accent: hsl(var(--accent));
-  --color-accent-foreground: hsl(var(--accent-foreground));
-  --color-destructive: hsl(var(--destructive));
-  --color-destructive-foreground: hsl(var(--destructive-foreground));
-
   --font-sans: var(--app-font-sans);
   --font-serif: var(--app-font-display);
   --font-mono: var(--app-font-mono);
-
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
 }
 
 :root {
@@ -53,48 +32,11 @@
   --card-foreground: 60 8% 9%;
   --card-border: 45 20% 83%;
 
-  --popover: 48 100% 99%;
-  --popover-foreground: 60 8% 9%;
-  --popover-border: 45 20% 78%;
-
-  --primary: 352 66% 47%;
-  --primary-foreground: 48 100% 99%;
-  --primary-border: hsl(352 66% 47%);
-
-  --secondary: 79 61% 36%;
-  --secondary-foreground: 48 100% 99%;
-  --secondary-border: hsl(79 61% 36%);
-
-  --muted: 45 22% 86%;
   --muted-foreground: 55 7% 38%;
-
-  --accent: 46 88% 55%;
-  --accent-foreground: 60 8% 9%;
-
-  --destructive: 352 66% 47%;
-  --destructive-foreground: 48 100% 99%;
-
-  --chart-1: 352 66% 47%;
-  --chart-2: 79 61% 36%;
-  --chart-3: 46 88% 55%;
-
-  --sidebar: 48 100% 99%;
-  --sidebar-foreground: 60 8% 9%;
-  --sidebar-border: 45 15% 80%;
-  --sidebar-primary: 352 66% 47%;
-  --sidebar-primary-foreground: 48 100% 99%;
-  --sidebar-accent: 79 61% 36%;
-  --sidebar-ring: 352 66% 47%;
 
   --app-font-sans: 'DM Sans', sans-serif;
   --app-font-display: 'Bricolage Grotesque', sans-serif;
   --app-font-mono: 'Space Mono', monospace;
-
-  --radius: 0.35rem;
-  --spacing: 0.25rem;
-
-  --elevate-1: rgba(23, 23, 20, 0.04);
-  --elevate-2: rgba(23, 23, 20, 0.08);
 
   --ink: #171714;
   --paper: #fffdf7;
@@ -113,46 +55,34 @@
   --orange-soft: #fff0d6;
 }
 
-.dark {
-  color-scheme: light;
+* {
+  box-sizing: border-box;
 }
 
-@layer base {
-  * {
-    @apply border-border;
-    box-sizing: border-box;
-  }
+html {
+  background: var(--paper-deep);
+}
 
-  html {
-    background: var(--paper-deep);
-  }
-
-  body {
-    @apply antialiased bg-background text-foreground;
-
-    margin: 0;
-    min-width: 320px;
-    font-family: var(--app-font-sans);
-  }
-
-  button,
-  input {
-    font: inherit;
-  }
+body {
+  margin: 0;
+  min-width: 320px;
+  background: var(--paper-deep);
+  color: var(--ink);
+  font-family: var(--app-font-sans);
 }
 
 button,
-a,
-input[type='range'] {
-  -webkit-tap-highlight-color: transparent;
+input {
+  font: inherit;
 }
 
 button {
   cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* =========================================
-   MAIN SHELL
+   SHELL
 ========================================= */
 
 .studio-shell {
@@ -172,14 +102,14 @@ button {
 }
 
 .studio-shell::before {
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.3'/%3E%3C/svg%3E");
-
   content: '';
-  inset: 0;
-  opacity: 0.035;
-  pointer-events: none;
   position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.035;
   z-index: 10;
+
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.3'/%3E%3C/svg%3E");
 }
 
 /* =========================================
@@ -194,23 +124,15 @@ button {
   gap: 1rem;
   height: 4.5rem;
   justify-content: space-between;
-
-  padding:
-    0 max(
-      1.5rem,
-      calc((100vw - 1640px) / 2)
-    );
-
+  padding: 0 max(1.5rem, calc((100vw - 1640px) / 2));
   position: relative;
   z-index: 2;
 }
 
 .brand-lockup,
 .topbar-status,
-.topbar-actions,
 .control-left,
 .control-right,
-.info-copy,
 .lyrics-headline,
 .track-tags,
 .legend-item,
@@ -221,7 +143,6 @@ button {
 
 .brand-lockup {
   gap: 0.75rem;
-  min-width: max-content;
 }
 
 .brand-mark {
@@ -235,7 +156,6 @@ button {
   font-weight: 700;
   height: 2rem;
   justify-content: center;
-  letter-spacing: -0.1em;
   transform: rotate(-4deg);
   width: 2rem;
 }
@@ -244,26 +164,23 @@ button {
   font-family: var(--app-font-display);
   font-size: 1rem;
   font-weight: 800;
-  letter-spacing: -0.04em;
 }
 
 .brand-kicker,
 .eyebrow,
-.mono-label,
-.track-kicker,
 .set-count,
 .section-heading,
 .line-note,
 .control-meta,
-.timestamp {
+.timestamp,
+.track-kicker {
   font-family: var(--app-font-mono);
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
 .brand-kicker,
-.eyebrow,
-.mono-label {
+.eyebrow {
   color: var(--muted-foreground);
   font-size: 0.59rem;
 }
@@ -278,7 +195,6 @@ button {
   font-family: var(--app-font-mono);
   font-size: 0.58rem;
   gap: 0.55rem;
-  letter-spacing: 0.07em;
   text-transform: uppercase;
 }
 
@@ -292,53 +208,28 @@ button {
   width: 0.52rem;
 }
 
-.share-button,
-.icon-button,
-.change-button,
-.play-button,
-.mode-button,
-.set-row,
-.secondary-action,
-.primary-action {
-  border: 0;
-}
-
 .share-button {
   align-items: center;
   background: var(--ink);
+  border: 0;
   color: var(--paper);
   display: inline-flex;
   font-size: 0.71rem;
   gap: 0.45rem;
   padding: 0.58rem 0.8rem;
-
-  transition:
-    transform 160ms ease,
-    opacity 160ms ease;
-}
-
-.share-button:hover,
-.primary-action:hover,
-.play-button:hover {
-  transform: translateY(-2px);
 }
 
 /* =========================================
-   MAIN HEADER
+   HEADER
 ========================================= */
 
 .app-main {
   margin: 0 auto;
   max-width: 1640px;
-
   padding:
     2.25rem
-    max(
-      1.5rem,
-      calc((100vw - 1640px) / 2)
-    )
+    max(1.5rem, calc((100vw - 1640px) / 2))
     4rem;
-
   position: relative;
   z-index: 1;
 }
@@ -354,11 +245,7 @@ button {
 
 .room-heading h1 {
   font-family: var(--app-font-display);
-  font-size: clamp(
-    2.9rem,
-    6.4vw,
-    6.8rem
-  );
+  font-size: clamp(2.9rem, 6.4vw, 6.8rem);
   font-weight: 800;
   letter-spacing: -0.095em;
   line-height: 0.8;
@@ -374,7 +261,6 @@ button {
   align-items: flex-start;
   display: flex;
   gap: 0.8rem;
-  margin-bottom: 0.15rem;
 }
 
 .heading-note p {
@@ -408,7 +294,6 @@ button {
   font-family: var(--app-font-mono);
   font-size: 0.59rem;
   font-weight: 700;
-  letter-spacing: 0.08em;
 }
 
 .legend-item,
@@ -467,19 +352,9 @@ button {
   margin-top: 1.25rem;
 }
 
-.studio-footer {
-  color: var(--muted-foreground);
-  font-family: var(--app-font-mono);
-  font-size: 0.54rem;
-  letter-spacing: 0.12em;
-  margin: 2rem 0 0.25rem;
-  text-align: center;
-}
-
 .setlist-panel,
 .stage-card,
-.lyrics-card,
-.info-panel {
+.lyrics-card {
   background: var(--paper);
   border: 1px solid var(--ink);
   box-shadow: 0.35rem 0.35rem 0 var(--ink);
@@ -509,11 +384,7 @@ button {
 
 .setlist-title {
   font-family: var(--app-font-display);
-  font-size: clamp(
-    2rem,
-    3vw,
-    3rem
-  );
+  font-size: clamp(2rem, 3vw, 3rem);
   font-weight: 800;
   letter-spacing: -0.08em;
   line-height: 0.82;
@@ -530,10 +401,6 @@ button {
   line-height: 1.35;
   margin: 0 0 1.15rem;
   max-width: 23ch;
-}
-
-.set-section + .set-section {
-  margin-top: 1.1rem;
 }
 
 .section-heading {
@@ -557,7 +424,6 @@ button {
 .set-rows {
   display: grid;
   gap: 0.34rem;
-  grid-template-columns: 1fr;
 }
 
 .set-row {
@@ -567,18 +433,11 @@ button {
   color: var(--ink);
   display: grid;
   gap: 0.42rem;
-  grid-template-columns:
-    1.45rem
-    minmax(0, 1fr);
-
+  grid-template-columns: 1.45rem minmax(0, 1fr);
   min-height: 2.2rem;
   padding: 0.35rem 0.42rem;
   text-align: left;
-
-  transition:
-    transform 150ms ease,
-    background-color 150ms ease,
-    color 150ms ease;
+  transition: 150ms ease;
 }
 
 .set-row:hover {
@@ -607,27 +466,14 @@ button {
   font-family: var(--app-font-display);
   font-size: 0.69rem;
   font-weight: 700;
-  letter-spacing: -0.02em;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.set-duration {
-  display: none;
-}
-
 /* =========================================
-   PERFORMANCE
+   VIDEO
 ========================================= */
-
-.performance-column {
-  min-width: 0;
-}
-
-.stage-card {
-  overflow: hidden;
-}
 
 .video-wrap {
   aspect-ratio: 16 / 9;
@@ -653,7 +499,6 @@ button {
   font-size: 0.53rem;
   gap: 0.4rem;
   left: 0.7rem;
-  letter-spacing: 0.07em;
   padding: 0.4rem 0.55rem;
   position: absolute;
   text-transform: uppercase;
@@ -686,44 +531,19 @@ button {
 
 .video-loading {
   align-items: center;
-  background: rgba(
-    23,
-    23,
-    20,
-    0.86
-  );
+  background: rgba(23, 23, 20, 0.86);
   color: var(--paper);
   display: flex;
   font-family: var(--app-font-mono);
   font-size: 0.62rem;
   inset: 0;
   justify-content: center;
-  letter-spacing: 0.08em;
   position: absolute;
   text-transform: uppercase;
 }
 
-.video-loading::before {
-  border: 2px solid
-    rgba(
-      255,
-      253,
-      247,
-      0.3
-    );
-  border-left-color: var(--yellow);
-  border-radius: 50%;
-  content: '';
-  height: 1rem;
-  margin-right: 0.55rem;
-  width: 1rem;
-
-  animation:
-    spin 900ms linear infinite;
-}
-
 /* =========================================
-   VIDEO CONTROLS
+   CONTROLS
 ========================================= */
 
 .stage-controls {
@@ -744,14 +564,8 @@ button {
     linear-gradient(
       90deg,
       var(--red) var(--progress),
-      rgba(
-        255,
-        253,
-        247,
-        0.26
-      ) var(--progress)
+      rgba(255, 253, 247, 0.26) var(--progress)
     );
-
   border-radius: 999px;
   height: 0.25rem;
   outline: none;
@@ -800,14 +614,11 @@ button {
 .play-button {
   align-items: center;
   background: var(--red);
+  border: 0;
   color: var(--paper);
   display: flex;
   height: 2.2rem;
   justify-content: center;
-
-  transition:
-    transform 160ms ease;
-
   width: 2.2rem;
 }
 
@@ -817,35 +628,19 @@ button {
 }
 
 .control-meta {
-  color: rgba(
-    255,
-    253,
-    247,
-    0.65
-  );
-
+  color: rgba(255, 253, 247, 0.65);
   font-size: 0.53rem;
-  letter-spacing: 0.04em;
 }
 
 .icon-button {
   align-items: center;
   background: transparent;
+  border: 0;
   color: currentColor;
   display: inline-flex;
   height: 1.9rem;
   justify-content: center;
-
-  transition:
-    transform 160ms ease,
-    opacity 160ms ease;
-
   width: 1.9rem;
-}
-
-.icon-button:hover {
-  opacity: 0.65;
-  transform: translateY(-1px);
 }
 
 /* =========================================
@@ -872,11 +667,7 @@ button {
 
 .track-title {
   font-family: var(--app-font-display);
-  font-size: clamp(
-    1.35rem,
-    2.2vw,
-    2.1rem
-  );
+  font-size: clamp(1.35rem, 2.2vw, 2.1rem);
   font-weight: 800;
   letter-spacing: -0.07em;
   line-height: 0.9;
@@ -900,7 +691,6 @@ button {
   color: var(--muted-foreground);
   font-family: var(--app-font-mono);
   font-size: 0.51rem;
-  letter-spacing: 0.05em;
   padding: 0.32rem 0.42rem;
 }
 
@@ -954,7 +744,6 @@ button {
   font-family: var(--app-font-mono);
   font-size: 0.54rem;
   gap: 0.4rem;
-  letter-spacing: 0.07em;
   text-transform: uppercase;
 }
 
@@ -964,7 +753,6 @@ button {
   font-size: 0.55rem;
   margin-top: 0.62rem;
   overflow: hidden;
-  text-overflow: ellipsis;
   text-transform: uppercase;
   white-space: nowrap;
 }
@@ -979,11 +767,7 @@ button {
   min-height: 34rem;
   overflow-y: auto;
   padding: 0.55rem;
-
-  scrollbar-color:
-    var(--border)
-    transparent;
-
+  scrollbar-color: var(--border) transparent;
   scrollbar-width: thin;
 }
 
@@ -1004,12 +788,10 @@ button {
   margin: 0.13rem 0;
   padding: 0.78rem 0.8rem;
   text-align: left;
-
   transition:
     transform 160ms ease,
     background-color 160ms ease,
-    opacity 160ms ease;
-
+    border-color 160ms ease;
   width: 100%;
 }
 
@@ -1017,205 +799,60 @@ button {
   background: var(--yellow-soft);
   transform: translateX(2px);
 }
+
 /* =========================================
    LYRIC COLORS + CUES
 ========================================= */
 
-/*
-  COLOR SYSTEM
-
-  NORMAL LYRIC
-  Before cue:
-    BLACK
-
-  Active:
-    RED + FADED RED BOX
-
-
-  STANDALONE FANCHANT
-  Before cue:
-    GREEN
-
-  Active:
-    GREEN + FADED RED BOX
-
-
-  SING-ALONG / PARTIAL FANCHANT
-  Before cue:
-    FANCHANT PORTION = GREEN
-    LYRIC PORTION = BLACK
-
-  Active:
-    FANCHANT PORTION = ORANGE
-    LYRIC PORTION = RED
-
-    Entire row gets faded red box.
-*/
-
-
-/* -----------------------------------------
-   LYRIC ROW
------------------------------------------ */
-
-.lyric-line.tone-lyric,
-.lyric-line.tone-singalong,
-.lyric-line.tone-chant {
-  background: transparent;
-  border-color: transparent;
-}
-
-
-/* -----------------------------------------
-   NORMAL LYRIC
------------------------------------------ */
-
-/* Inactive normal lyric */
-.lyric-line.tone-lyric {
+/* Normal lyrics */
+.segment-lyric {
   color: var(--ink);
 }
 
-/* Active normal lyric */
-.lyric-line.tone-lyric.active {
-  background: var(--red-soft);
-  border-color: var(--red);
+/* Current lyric */
+.segment-lyric.lyric-active {
   color: var(--red);
-  transform: translateX(4px);
 }
 
-
-/* -----------------------------------------
-   STANDALONE FANCHANT
------------------------------------------ */
-
-/* Inactive standalone fanchant */
-.lyric-line.tone-chant {
+/* Sing-along fanchant BEFORE cue */
+.segment-chant {
   color: var(--green);
 }
 
-/* Active standalone fanchant */
-.lyric-line.tone-chant.active {
-  background: var(--red-soft);
-  border-color: var(--red);
-  color: var(--green);
-  transform: translateX(4px);
-}
-
-
-/* -----------------------------------------
-   SING-ALONG ROW
------------------------------------------ */
-
-/*
-  The ROW itself does not become orange.
-
-  Individual spans control the colors.
-*/
-.lyric-line.tone-singalong {
-  color: var(--ink);
-}
-
-/*
-  Active sing-along row gets the faded red box.
-*/
-.lyric-line.tone-singalong.active {
-  background: var(--red-soft);
-  border-color: var(--red);
-  transform: translateX(4px);
-}
-
-
-/* -----------------------------------------
-   SING-ALONG TEXT PARTS
------------------------------------------ */
-
-/*
-  Normal lyric portion.
-
-  Before cue:
-    BLACK
-*/
-.lyric-line.tone-singalong
-.lyric-part {
-  color: var(--ink);
-}
-
-
-/*
-  Fanchant portion.
-
-  Before cue:
-    GREEN
-*/
-.lyric-line.tone-singalong
-.chant-part {
-  color: var(--green);
-}
-
-
-/*
-  When the sing-along cue becomes active:
-
-  Fanchant portion:
-    ORANGE
-*/
-.lyric-line.tone-singalong.active
-.chant-part {
+/* Sing-along fanchant AFTER cue */
+.segment-chant.chant-active {
   color: var(--orange);
 }
 
-
-/*
-  When the sing-along cue becomes active:
-
-  Remaining lyric:
-    RED
-*/
-.lyric-line.tone-singalong.active
-.lyric-part {
-  color: var(--red);
-}
-
-
-/* -----------------------------------------
-   STANDALONE FANCHANT TEXT
------------------------------------------ */
-
-.chant-text {
+/* Standalone fanchants are ALWAYS GREEN */
+.segment-chant.standalone-chant {
   color: var(--green);
 }
 
-.lyric-line.tone-chant.active
-.chant-text {
+/* Current row = faded red highlight */
+.lyric-line.active {
+  background: var(--red-soft);
+  border-color: var(--red);
+  transform: translateX(4px);
+}
+
+/* Standalone fanchant stays GREEN even when active */
+.lyric-line.tone-chant {
   color: var(--green);
 }
 
+.lyric-line.tone-chant.active {
+  color: var(--green);
+}
 
-/* =========================================
-   LYRIC CONTENT
-========================================= */
+.lyric-line.active .line-text {
+  font-weight: 800;
+}
 
 .line-content {
   flex: 1;
   min-width: 0;
 }
-
-
-/* -----------------------------------------
-   HIDDEN TIMESTAMPS + LABELS
------------------------------------------ */
-
-.line-time {
-  display: none;
-}
-
-.line-label {
-  display: none;
-}
-
-
-/* -----------------------------------------
-   LYRIC TEXT
------------------------------------------ */
 
 .line-text {
   font-family: var(--app-font-display);
@@ -1225,17 +862,6 @@ button {
   line-height: 1.05;
 }
 
-
-/* Active cue slightly bolder */
-.lyric-line.active .line-text {
-  font-weight: 800;
-}
-
-
-/* -----------------------------------------
-   NOTES
------------------------------------------ */
-
 .line-note {
   color: var(--muted-foreground);
   display: block;
@@ -1243,11 +869,6 @@ button {
   margin-top: 0.3rem;
   opacity: 0.75;
 }
-
-
-/* -----------------------------------------
-   ACTIVE CUE INDICATOR
------------------------------------------ */
 
 .line-pulse {
   background: currentColor;
@@ -1262,200 +883,6 @@ button {
 .lyric-line.active .line-pulse {
   opacity: 1;
   animation: line-pulse 1.4s ease-in-out infinite;
-}
-
-/* =========================================
-   UNDER GRID
-========================================= */
-
-.under-grid {
-  display: grid;
-  gap: 1rem;
-  grid-template-columns: 1.3fr 1fr;
-  margin-top: 1rem;
-}
-
-.info-panel {
-  align-items: center;
-  display: flex;
-  gap: 0.7rem;
-  justify-content: space-between;
-  min-height: 4.6rem;
-  padding: 0.75rem 0.85rem;
-}
-
-.change-button {
-  color: var(--ink);
-  text-align: left;
-
-  transition:
-    transform 160ms ease,
-    background-color 160ms ease;
-}
-
-.change-button:hover {
-  background: var(--yellow-soft);
-  transform: translateY(-2px);
-}
-
-.info-copy {
-  gap: 0.65rem;
-}
-
-.info-glyph {
-  align-items: center;
-  background: var(--green-soft);
-  border: 1px solid var(--green);
-  color: var(--green);
-  display: flex;
-  flex: 0 0 2rem;
-  height: 2rem;
-  justify-content: center;
-  width: 2rem;
-}
-
-.link-glyph {
-  background: var(--yellow-soft);
-  border-color: var(--yellow);
-  color: var(--ink);
-}
-
-.info-title {
-  font-size: 0.68rem;
-  font-weight: 700;
-  margin: 0;
-}
-
-.info-description {
-  color: var(--muted-foreground);
-  font-size: 0.59rem;
-  line-height: 1.35;
-  margin: 0.18rem 0 0;
-}
-
-.progress-caption {
-  color: var(--red);
-  font-family: var(--app-font-mono);
-  font-size: 0.54rem;
-  line-height: 1.25;
-  text-align: right;
-  white-space: nowrap;
-}
-
-/* =========================================
-   MODAL
-========================================= */
-
-.modal-backdrop {
-  align-items: center;
-  background: rgba(
-    23,
-    23,
-    20,
-    0.78
-  );
-  display: flex;
-  inset: 0;
-  justify-content: center;
-  padding: 1.2rem;
-  position: fixed;
-  z-index: 30;
-}
-
-.modal-card {
-  background: var(--paper);
-  border: 1px solid var(--ink);
-  box-shadow: 0.45rem 0.45rem 0 var(--red);
-  max-width: 32rem;
-  padding: 1.35rem;
-  width: 100%;
-}
-
-.modal-top {
-  align-items: flex-start;
-  display: flex;
-  justify-content: space-between;
-}
-
-.modal-title {
-  font-family: var(--app-font-display);
-  font-size: 1.55rem;
-  font-weight: 800;
-  letter-spacing: -0.06em;
-  margin: 0.35rem 0 0;
-}
-
-.modal-top .icon-button {
-  color: var(--ink);
-}
-
-.modal-copy {
-  color: var(--muted-foreground);
-  font-size: 0.72rem;
-  line-height: 1.5;
-  margin: 0.45rem 0 1rem;
-}
-
-.url-input {
-  background: var(--paper);
-  border: 1px solid var(--ink);
-  border-radius: 0;
-  color: var(--ink);
-  font-size: 0.76rem;
-  margin-top: 0.45rem;
-  outline: none;
-  padding: 0.75rem 0.8rem;
-  width: 100%;
-}
-
-.url-input:focus {
-  border-color: var(--red);
-  box-shadow:
-    0 0 0 3px
-    var(--red-soft);
-}
-
-.input-error {
-  color: var(--red);
-  font-family: var(--app-font-mono);
-  font-size: 0.57rem;
-  margin: 0.45rem 0 0;
-}
-
-.modal-actions {
-  display: flex;
-  gap: 0.55rem;
-  justify-content: flex-end;
-  margin-top: 1.1rem;
-}
-
-.secondary-action,
-.primary-action {
-  font-size: 0.7rem;
-  font-weight: 700;
-  padding: 0.65rem 0.85rem;
-
-  transition:
-    transform 160ms ease,
-    opacity 160ms ease;
-}
-
-.secondary-action {
-  background: transparent;
-  border: 1px solid var(--ink);
-  color: var(--ink);
-}
-
-.primary-action {
-  background: var(--red);
-  border: 1px solid var(--red);
-  color: var(--paper);
-}
-
-.primary-action:hover,
-.secondary-action:hover {
-  opacity: 0.82;
-  transform: translateY(-2px);
 }
 
 /* =========================================
@@ -1483,23 +910,13 @@ button {
 @keyframes line-pulse {
   0%,
   100% {
-    box-shadow:
-      0 0 0 0
-      rgba(213, 46, 69, 0.35);
+    box-shadow: 0 0 0 0 rgba(213, 46, 69, 0.35);
     transform: scale(0.88);
   }
 
   50% {
-    box-shadow:
-      0 0 0 5px
-      rgba(213, 46, 69, 0);
+    box-shadow: 0 0 0 5px rgba(213, 46, 69, 0);
     transform: scale(1.15);
-  }
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
   }
 }
 
@@ -1516,9 +933,7 @@ button {
   }
 
   .set-row {
-    grid-template-columns:
-      1.25rem
-      minmax(0, 1fr);
+    grid-template-columns: 1.25rem minmax(0, 1fr);
   }
 
   .set-song {
@@ -1527,7 +942,7 @@ button {
 }
 
 /* =========================================
-   SMALL DESKTOP / TABLET
+   SMALL DESKTOP
 ========================================= */
 
 @media (max-width: 1040px) {
@@ -1544,12 +959,7 @@ button {
   .lyric-scroll {
     display: grid;
     gap: 0.2rem 0.5rem;
-    grid-template-columns:
-      repeat(
-        2,
-        minmax(0, 1fr)
-      );
-
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     max-height: 25rem;
     min-height: 0;
   }
@@ -1575,10 +985,7 @@ button {
   }
 
   .app-main {
-    padding:
-      1.55rem
-      1rem
-      3rem;
+    padding: 1.55rem 1rem 3rem;
   }
 
   .room-heading {
@@ -1588,11 +995,7 @@ button {
   }
 
   .room-heading h1 {
-    font-size: clamp(
-      3rem,
-      15vw,
-      5rem
-    );
+    font-size: clamp(3rem, 15vw, 5rem);
   }
 
   .heading-note {
@@ -1606,7 +1009,6 @@ button {
   .workspace {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
   }
 
   .setlist-panel,
@@ -1627,17 +1029,9 @@ button {
     order: 3;
   }
 
-  .set-rows {
-    grid-template-columns: 1fr;
-  }
-
   .lyric-scroll {
     display: block;
     max-height: 27rem;
-  }
-
-  .under-grid {
-    grid-template-columns: 1fr;
   }
 }
 
@@ -1661,23 +1055,12 @@ button {
   }
 
   .setlist-panel {
-    box-shadow:
-      0.25rem
-      0.25rem
-      0
-      var(--ink);
-
-    padding:
-      1rem
-      0.8rem;
+    box-shadow: 0.25rem 0.25rem 0 var(--ink);
+    padding: 1rem 0.8rem;
   }
 
   .setlist-title {
     font-size: 2.2rem;
-  }
-
-  .set-row {
-    min-height: 2.3rem;
   }
 
   .song-meta {
@@ -1691,13 +1074,5 @@ button {
 
   .control-right .control-meta {
     display: none;
-  }
-
-  .info-panel {
-    align-items: flex-start;
-  }
-
-  .progress-caption {
-    text-align: left;
   }
 }
