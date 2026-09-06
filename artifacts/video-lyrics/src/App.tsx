@@ -1,14 +1,6 @@
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
-import type {
-  ChangeEvent,
-  CSSProperties,
-} from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+
+import type { ChangeEvent, CSSProperties } from "react";
 
 import {
   Check,
@@ -23,41 +15,13 @@ import {
   VolumeX,
 } from "lucide-react";
 
-type LineTone = "singalong" | "chant" | "lyric";
+import { setlist } from "./songs";
 
-type TimedLine = {
-  time: number;
-  text: string;
-  note?: string;
-  tone?: LineTone;
-};
-
-type TranscriptSegment = {
-  text: string;
-  tone: "lyric" | "chant";
-  chantTime?: number;
-};
-
-type TranscriptLine = TimedLine & {
-  source: "LYRIC" | "FANCHANT";
-  lyricIndex?: number;
-  hasFanchant?: boolean;
-  segments?: TranscriptSegment[];
-};
-
-type Track = {
-  id: string;
-  number: number;
-  title: string;
-  artist: string;
-  featuredArtist?: string;
-  type?: string;
-  section: string;
-  duration: string;
-  videoId: string;
-  lyrics: TimedLine[];
-  fanchant: TimedLine[];
-};
+import type {
+  TimedLine,
+  TranscriptLine,
+  TranscriptSegment,
+} from "./songs/types";
 
 type YouTubePlayerEvent = {
   data: number;
@@ -105,185 +69,8 @@ declare global {
 const FALLBACK_DURATION = 212;
 const INITIAL_VIDEO_ID = "MT-4Bk1Lw8g";
 
-const lines = (
-  data: Array<[number, string, string?, LineTone?]>,
-): TimedLine[] =>
-  data.map(([time, text, note, tone]) => ({
-    time,
-    text,
-    note,
-    tone,
-  }));
-
-const setlist: Track[] = [
-  {
-    id: "BLOODY PARADISE",
-    number: 1,
-    title: "BLOODY PARADISE",
-    artist: "ENHYPEN",
-    type: "OFFICIAL MUSIC VIDEO",
-    section: "SONGS",
-    duration: "2:14",
-    videoId: "MT-4Bk1Lw8g",
-
-    lyrics: lines([
-      [7, "We're going M.I.A oh"],
-      [9, "Dalbichi jeo wiro"],
-      [11, "They fell like dominoes"],
-      [13, "Piro muldeun georiro"],
-      [15, "I know that we're okay oh"],
-      [17, "Sonjapgo eodiro"],
-      [19, "Deo isang gomin eopseo"],
-      [21, "Red fever comin' up"],
-      [22, "We're going M.I.A"],
-
-      [24, "Ah, ppalgake pi mudeun suit and tie, drive"],
-      [29, "Heart is reckless, gingin daero wiro balba"],
-      [33, "Love is spinnin' when you're by my side"],
-      [35, "Tteugeopge, watch me take off and fly"],
-
-      [38, "You wanna? Come touch me, party-arty"],
-      [40, "Hae tteul ttaekkaji uri"],
-      [42, "Come touch me, party-arty"],
-      [44, "In our bloody paradise"],
-
-      [46, "Come touch me, party-arty"],
-      [48, "Hae tteul ttaekkaji uri"],
-      [50, "Come touch me, party-arty"],
-      [52, "In our bloody paradise"],
-
-      [53, "Like ooh, FLY YA YA YA YA"],
-      [55, "Ooh, FLY YA YA YA YA"],
-      [57, "Ooh, FLY YA YA YA YA"],
-      [59, "Do your dance like that"],
-
-      [60, "We're going M.I.A, oh"],
-      [63, "Eumageun heureugo"],
-      [65, "We felt like dominoes"],
-      [67, "Ne modeun geol gajigo"],
-      [69, "I bameul gieokae, oh"],
-      [71, "Siganeun heureugo"],
-      [72, "Sarangeun permanent"],
-      [74, "The sun is comin' up"],
-      [76, "We're going M.I.A"],
-
-      [78, "Ah, ppalgake pi mudeun suit and tie, drive"],
-      [83, "Heart is reckless, gingin daero wiro balba"],
-      [86, "Love is spinnin' when you're by my side"],
-      [89, "Tteugeopge, watch me take off and fly"],
-
-      [92, "You wanna? Come touch me, party-arty"],
-      [94, "Hae tteul ttaekkaji uri"],
-      [96, "Come touch me, party-arty"],
-      [97, "In our bloody paradise"],
-
-      [100, "Come touch me, party-arty"],
-      [102, "Hae tteul ttaekkaji uri"],
-      [103, "Come touch me, party-arty"],
-      [105, "In our bloody paradise"],
-
-      [107, "Like ooh, FLY YA YA YA YA"],
-      [109, "Ooh, FLY YA YA YA YA"],
-      [111, "Ooh, FLY YA YA YA YA"],
-      [113, "Do your dance like that"],
-
-      [114, "Woah-ooh, FLY YA YA YA YA"],
-      [116, "Ooh, FLY YA YA YA YA"],
-      [118, "Ooh, FLY YA YA YA YA"],
-      [120, "Do your dance like that"],
-
-      [121, "Shh, can't control it"],
-      [123, "Shh, it's a moment"],
-      [125, "Shh, can't control it"],
-      [128, "Shh"],
-    ]),
-
-    fanchant: lines([
-      [5, "EN! HA! I! PEUN"],
-      [22, "We're going M.I.A"],
-      [35, "Tteugeopge, watch me take"],
-      [44, "In our bloody paradise"],
-      [52, "In our bloody paradise"],
-      [54, "FLY YA YA YA YA"],
-      [56, "FLY YA YA YA YA"],
-      [58, "FLY YA YA YA YA"],
-      [76, "We're going M.I.A"],
-      [89, "Tteugeopge, watch me take"],
-      [97, "In our bloody paradise"],
-      [105, "In our bloody paradise"],
-      [108, "FLY YA YA YA YA"],
-      [110, "FLY YA YA YA YA"],
-      [112, "FLY YA YA YA YA"],
-      [115, "FLY YA YA YA YA"],
-      [117, "FLY YA YA YA YA"],
-      [119, "FLY YA YA YA YA"],
-      [121, "YANG JUNGWON, PARK JONGSEONG"],
-      [123, "SIM JAEYUN, PARK SUNGHOON"],
-      [125, "KIM SUNOO, NI-KI"],
-      [128, "EN! HA! I! PEUN"],
-    ]),
-  },
-
-  {
-    id: "XO",
-    number: 2,
-    title: "XO (Only If You Say Yes)",
-    artist: "ENHYPEN",
-    type: "WEVERSE CON FESTIVAL 2026",
-    section: "SONGS",
-    duration: "2:43",
-    videoId: "Scufsa1FB2Q",
-
-    lyrics: lines([
-      [20, "XO XO"],
-      [25, "KISS ME"],
-      [27, "DON'T SAY NO"],
-      [30, "NEW LYRICS"],
-    ]),
-
-    fanchant: lines([
-      [28, "EN! HA! I! PEUN"],
-      [30, "NEW FANCHANT"],
-    ]),
-  },
-
-  {
-    id: "STEALER",
-    number: 3,
-    title: "STEALER",
-    artist: "ENHYPEN",
-    type: "BLOOD SAGA in SEOUL",
-    section: "SONGS",
-    duration: "3:03",
-    videoId: "tWM5t3_v8KA",
-
-    lyrics: lines([
-      [0, "The room is bright enough to see you", "opening"],
-      [24, "Every little voice becomes a choir", "verse"],
-      [55, "Keep the home light burning", "chorus"],
-      [94, "We will carry what we came here for", "chorus"],
-      [133, "If you get lost, look for the windows", "bridge"],
-      [176, "Keep the home light burning", "final chorus"],
-      [220, "Goodnight, goodnight, goodnight", "close"],
-    ]),
-
-    fanchant: lines([
-      [0, "HEY! HEY!", "opening"],
-      [55, "HOME LIGHT!", "response"],
-      [94, "CARRY IT HOME!", "all fans"],
-      [133, "LOOK FOR THE WINDOWS!", "call"],
-      [176, "HOME LIGHT!", "final response"],
-      [220, "GOODNIGHT!", "close"],
-    ]),
-  },
-];
-
 const normalizeText = (text: string) =>
-  text
-    .toLowerCase()
-    .replace(/[’']/g, "'")
-    .replace(/\s+/g, " ")
-    .trim();
+  text.toLowerCase().replace(/[’']/g, "'").replace(/\s+/g, " ").trim();
 
 function formatTime(seconds: number) {
   const safe = Math.max(0, Math.floor(seconds));
@@ -295,7 +82,9 @@ function formatTime(seconds: number) {
 
 function App() {
   const [videoId, setVideoId] = useState(INITIAL_VIDEO_ID);
+
   const [selectedId, setSelectedId] = useState(setlist[0].id);
+
   const [isPlaying, setIsPlaying] = useState(false);
   const [playbackSeconds, setPlaybackSeconds] = useState(0);
   const [duration, setDuration] = useState(FALLBACK_DURATION);
@@ -306,38 +95,51 @@ function App() {
   const [isMuted, setIsMuted] = useState(false);
 
   const playerHostRef = useRef<HTMLDivElement>(null);
+
   const playerRef = useRef<YouTubePlayer | null>(null);
+
   const timerRef = useRef<number | null>(null);
+
   const activeLineRef = useRef<HTMLButtonElement | null>(null);
+
   const autoplayRef = useRef(false);
+
   const playerCreatedRef = useRef(false);
+
   const loadedVideoRef = useRef<string | null>(null);
 
   const selectedTrack = useMemo(
-    () =>
-      setlist.find((track) => track.id === selectedId) ??
-      setlist[0],
+    () => setlist.find((track) => track.id === selectedId) ?? setlist[0],
     [selectedId],
   );
 
   /*
    * Match only fanchants whose actual words appear
-   * inside a lyric. Standalone member-name chants
-   * therefore remain standalone.
+   * inside a lyric.
+   *
+   * Standalone fanchants, such as:
+   * EN! HA! I! PEUN
+   * member names
+   *
+   * remain standalone and therefore stay GREEN.
    */
   const fanchantData = useMemo(() => {
     const assignments = new Map<number, TimedLine[]>();
+
     const assigned = new Set<TimedLine>();
 
     selectedTrack.fanchant.forEach((chant) => {
       const chantText = normalizeText(chant.text);
+
       let bestIndex = -1;
       let bestDistance = Infinity;
 
       selectedTrack.lyrics.forEach((lyric, index) => {
         const lyricText = normalizeText(lyric.text);
 
-        if (!lyricText.includes(chantText)) return;
+        if (!lyricText.includes(chantText)) {
+          return;
+        }
 
         const distance = Math.abs(chant.time - lyric.time);
 
@@ -349,13 +151,18 @@ function App() {
 
       if (bestIndex !== -1) {
         const existing = assignments.get(bestIndex) ?? [];
+
         existing.push(chant);
         assignments.set(bestIndex, existing);
+
         assigned.add(chant);
       }
     });
 
-    return { assignments, assigned };
+    return {
+      assignments,
+      assigned,
+    };
   }, [selectedTrack]);
 
   /*
@@ -364,8 +171,7 @@ function App() {
   const transcriptLines = useMemo<TranscriptLine[]>(() => {
     const lyricLines: TranscriptLine[] = selectedTrack.lyrics.map(
       (line, lyricIndex) => {
-        const chants =
-          fanchantData.assignments.get(lyricIndex) ?? [];
+        const chants = fanchantData.assignments.get(lyricIndex) ?? [];
 
         if (!chants.length) {
           return {
@@ -389,7 +195,9 @@ function App() {
               .toLowerCase()
               .indexOf(chant.text.toLowerCase());
 
-            if (start === -1) return null;
+            if (start === -1) {
+              return null;
+            }
 
             return {
               chant,
@@ -425,10 +233,13 @@ function App() {
         }
 
         const segments: TranscriptSegment[] = [];
+
         let cursor = 0;
 
         matches.forEach((match) => {
-          if (match.start < cursor) return;
+          if (match.start < cursor) {
+            return;
+          }
 
           if (match.start > cursor) {
             segments.push({
@@ -480,7 +291,9 @@ function App() {
       }));
 
     return [...lyricLines, ...standalone].sort((a, b) => {
-      if (a.time !== b.time) return a.time - b.time;
+      if (a.time !== b.time) {
+        return a.time - b.time;
+      }
 
       if (a.source === "LYRIC" && b.source === "FANCHANT") {
         return -1;
@@ -491,7 +304,8 @@ function App() {
   }, [selectedTrack, fanchantData]);
 
   /*
-   * The current ROW is based only on the line's timestamp.
+   * The current ROW is based only on
+   * the line's timestamp.
    */
   const activeCueTime = useMemo(() => {
     let active = -1;
@@ -506,9 +320,7 @@ function App() {
   }, [transcriptLines, playbackSeconds]);
 
   const progress =
-    duration > 0
-      ? Math.min(100, (playbackSeconds / duration) * 100)
-      : 0;
+    duration > 0 ? Math.min(100, (playbackSeconds / duration) * 100) : 0;
 
   /*
    * YouTube API.
@@ -523,7 +335,10 @@ function App() {
     const interval = window.setInterval(() => {
       if (window.YT?.Player) {
         window.clearInterval(interval);
-        if (!cancelled) setApiReady(true);
+
+        if (!cancelled) {
+          setApiReady(true);
+        }
       }
     }, 100);
 
@@ -548,15 +363,20 @@ function App() {
 
     if (!existing && !window.YT?.Player) {
       const script = document.createElement("script");
+
       script.src = "https://www.youtube.com/iframe_api";
+
       script.async = true;
+
       document.body.appendChild(script);
     }
 
     return () => {
       cancelled = true;
+
       window.clearTimeout(timeout);
       window.clearInterval(interval);
+
       window.onYouTubeIframeAPIReady = previous;
     };
   }, []);
@@ -576,59 +396,55 @@ function App() {
 
     playerCreatedRef.current = true;
 
-    const player = new window.YT.Player(
-      playerHostRef.current,
-      {
-        videoId,
-        playerVars: {
-          autoplay: 0,
-          controls: 0,
-          modestbranding: 1,
-          rel: 0,
-          playsinline: 1,
+    const player = new window.YT.Player(playerHostRef.current, {
+      videoId,
+
+      playerVars: {
+        autoplay: 0,
+        controls: 0,
+        modestbranding: 1,
+        rel: 0,
+        playsinline: 1,
+      },
+
+      events: {
+        onReady: () => {
+          playerRef.current = player;
+
+          loadedVideoRef.current = videoId;
+
+          const d = player.getDuration?.();
+
+          if (d && d > 0) {
+            setDuration(d);
+          }
+
+          setPlaybackSeconds(0);
+
+          if (autoplayRef.current) {
+            autoplayRef.current = false;
+
+            player.playVideo?.();
+          }
         },
-        events: {
-          onReady: () => {
-            playerRef.current = player;
-            loadedVideoRef.current = videoId;
 
-            const d = player.getDuration?.();
+        onStateChange: (event) => {
+          const state = window.YT?.PlayerState;
 
-            if (d && d > 0) {
-              setDuration(d);
-            }
+          if (event.data === state?.PLAYING) {
+            setIsPlaying(true);
+          }
 
-            setPlaybackSeconds(0);
+          if (event.data === state?.PAUSED || event.data === state?.ENDED) {
+            setIsPlaying(false);
+          }
 
-            if (autoplayRef.current) {
-              autoplayRef.current = false;
-              player.playVideo?.();
-            }
-          },
-
-          onStateChange: (event) => {
-            const state = window.YT?.PlayerState;
-
-            if (event.data === state?.PLAYING) {
-              setIsPlaying(true);
-            }
-
-            if (
-              event.data === state?.PAUSED ||
-              event.data === state?.ENDED
-            ) {
-              setIsPlaying(false);
-            }
-
-            if (event.data === state?.ENDED) {
-              setPlaybackSeconds(
-                player.getDuration?.() ?? FALLBACK_DURATION,
-              );
-            }
-          },
+          if (event.data === state?.ENDED) {
+            setPlaybackSeconds(player.getDuration?.() ?? FALLBACK_DURATION);
+          }
         },
       },
-    );
+    });
 
     playerRef.current = player;
   }, [apiReady]);
@@ -637,11 +453,16 @@ function App() {
    * Load selected video.
    */
   useEffect(() => {
-    if (!apiReady || !playerRef.current) return;
+    if (!apiReady || !playerRef.current) {
+      return;
+    }
 
-    if (loadedVideoRef.current === videoId) return;
+    if (loadedVideoRef.current === videoId) {
+      return;
+    }
 
     loadedVideoRef.current = videoId;
+
     setPlaybackSeconds(0);
     setDuration(FALLBACK_DURATION);
 
@@ -654,19 +475,24 @@ function App() {
   useEffect(() => {
     if (timerRef.current !== null) {
       window.clearInterval(timerRef.current);
+
       timerRef.current = null;
     }
 
-    if (!isPlaying) return;
+    if (!isPlaying) {
+      return;
+    }
 
     timerRef.current = window.setInterval(() => {
       const player = playerRef.current;
 
-      if (!player) return;
+      if (!player) {
+        return;
+      }
 
       const current = player.getCurrentTime?.() ?? 0;
-      const currentDuration =
-        player.getDuration?.() ?? duration;
+
+      const currentDuration = player.getDuration?.() ?? duration;
 
       setPlaybackSeconds(current);
 
@@ -678,6 +504,7 @@ function App() {
     return () => {
       if (timerRef.current !== null) {
         window.clearInterval(timerRef.current);
+
         timerRef.current = null;
       }
     };
@@ -704,7 +531,7 @@ function App() {
     };
   }, []);
 
-  const chooseTrack = (track: Track) => {
+  const chooseTrack = (track: (typeof setlist)[number]) => {
     setSelectedId(track.id);
     setPlaybackSeconds(0);
     setDuration(FALLBACK_DURATION);
@@ -712,7 +539,9 @@ function App() {
 
     if (playerRef.current && apiReady) {
       loadedVideoRef.current = track.videoId;
+
       playerRef.current.loadVideoById?.(track.videoId);
+
       playerRef.current.playVideo?.();
     } else {
       autoplayRef.current = true;
@@ -725,6 +554,7 @@ function App() {
 
     if (!player) {
       setIsPlaying((value) => !value);
+
       return;
     }
 
@@ -743,22 +573,19 @@ function App() {
       );
 
       setPlaybackSeconds(safe);
+
       playerRef.current?.seekTo?.(safe, true);
     },
     [duration],
   );
 
-  const handleProgressChange = (
-    event: ChangeEvent<HTMLInputElement>,
-  ) => {
+  const handleProgressChange = (event: ChangeEvent<HTMLInputElement>) => {
     seekTo(Number(event.target.value));
   };
 
   const copySessionLink = async () => {
     try {
-      await navigator.clipboard.writeText(
-        window.location.href,
-      );
+      await navigator.clipboard.writeText(window.location.href);
 
       setCopied(true);
 
@@ -786,19 +613,14 @@ function App() {
         <div className="brand-lockup">
           <div className="brand-mark">VL</div>
 
-          <span className="brand-name">
-            Video Lyrics Studio
-          </span>
+          <span className="brand-name">Video Lyrics Studio</span>
 
-          <span className="brand-kicker">
-            live setlist companion
-          </span>
+          <span className="brand-kicker">live setlist companion</span>
         </div>
 
         <div className="topbar-status">
           <span className="status-dot" />
-          room ready /{" "}
-          {apiReady ? "player synced" : "demo clock"}
+          room ready / {apiReady ? "player synced" : "demo clock"}
         </div>
 
         <button
@@ -807,6 +629,7 @@ function App() {
           type="button"
         >
           {copied ? <Check size={14} /> : <Share2 size={14} />}
+
           {copied ? "Copied" : "Share room"}
         </button>
       </header>
@@ -814,9 +637,7 @@ function App() {
       <main className="app-main">
         <section className="room-heading">
           <div>
-            <div className="eyebrow">
-              ENHYPEN / fanchant
-            </div>
+            <div className="eyebrow">ENHYPEN / fanchant</div>
 
             <h1>
               Let our voices reach <em>ENHYPEN.</em>
@@ -835,9 +656,7 @@ function App() {
         </section>
 
         <section className="legend-strip">
-          <span className="legend-title">
-            quick guide
-          </span>
+          <span className="legend-title">quick guide</span>
 
           <span className="legend-item">
             <i className="legend-swatch lyric-swatch" />
@@ -868,24 +687,19 @@ function App() {
         <section className="workspace">
           <aside className="setlist-panel">
             <div className="panel-cap">
-              <span className="eyebrow">
-                ENGENEs PLAYLIST
-              </span>
+              <span className="eyebrow">ENGENE PLAYLIST</span>
 
-              <span className="set-count">
-                {setlist.length} tracks
-              </span>
+              <span className="set-count">{setlist.length} tracks</span>
             </div>
 
             <h2 className="setlist-title">
-              BLOOD SAGA
+              Lock
               <br />
-              <span>TOUR</span>
+              <span>in.</span>
             </h2>
 
             <p className="setlist-intro">
-              Your personal fanchant cue sheet for the
-              performance.
+              Select a song and get ready to sing along.
             </p>
 
             <div className="setlist-sections">
@@ -899,9 +713,7 @@ function App() {
                   {setlist.map((track) => (
                     <button
                       className={
-                        selectedId === track.id
-                          ? "set-row selected"
-                          : "set-row"
+                        selectedId === track.id ? "set-row selected" : "set-row"
                       }
                       key={track.id}
                       onClick={() => chooseTrack(track)}
@@ -911,13 +723,9 @@ function App() {
                         {String(track.number).padStart(2, "0")}
                       </span>
 
-                      <span className="set-song">
-                        {track.title}
-                      </span>
+                      <span className="set-song">{track.title}</span>
 
-                      <span className="set-duration">
-                        {track.duration}
-                      </span>
+                      <span className="set-duration">{track.duration}</span>
                     </button>
                   ))}
                 </div>
@@ -928,10 +736,7 @@ function App() {
           <div className="performance-column">
             <article className="stage-card">
               <div className="video-wrap">
-                <div
-                  className="player-frame"
-                  ref={playerHostRef}
-                />
+                <div className="player-frame" ref={playerHostRef} />
 
                 {!apiReady && (
                   <iframe
@@ -943,9 +748,7 @@ function App() {
                 )}
 
                 {!apiReady && !apiFailed && (
-                  <div className="video-loading">
-                    connecting to the stage
-                  </div>
+                  <div className="video-loading">connecting to the stage</div>
                 )}
 
                 {apiFailed && !apiReady && (
@@ -959,15 +762,12 @@ function App() {
                     <Radio size={11} />
                   </span>
 
-                  {apiReady
-                    ? "youtube / live sync"
-                    : "youtube / demo sync"}
+                  {apiReady ? "youtube / live sync" : "youtube / demo sync"}
                 </div>
 
                 <div className="video-track-stamp">
-                  <span>
-                    {String(selectedTrack.number).padStart(2, "0")}
-                  </span>
+                  <span>{String(selectedTrack.number).padStart(2, "0")}</span>
+
                   {selectedTrack.title}
                 </div>
               </div>
@@ -990,53 +790,36 @@ function App() {
                       } as CSSProperties
                     }
                     type="range"
-                    value={Math.min(
-                      playbackSeconds,
-                      duration,
-                    )}
+                    value={Math.min(playbackSeconds, duration)}
                   />
 
-                  <span className="timestamp">
-                    {formatTime(duration)}
-                  </span>
+                  <span className="timestamp">{formatTime(duration)}</span>
                 </div>
 
                 <div className="control-row">
                   <div className="control-left">
                     <button
                       aria-label={
-                        isPlaying
-                          ? "Pause performance"
-                          : "Play performance"
+                        isPlaying ? "Pause performance" : "Play performance"
                       }
                       className="play-button"
                       onClick={togglePlayback}
                       type="button"
                     >
                       {isPlaying ? (
-                        <Pause
-                          size={17}
-                          fill="currentColor"
-                        />
+                        <Pause size={17} fill="currentColor" />
                       ) : (
-                        <Play
-                          size={17}
-                          fill="currentColor"
-                        />
+                        <Play size={17} fill="currentColor" />
                       )}
                     </button>
 
                     <div>
                       <div className="control-label">
-                        {isPlaying
-                          ? "Playing live"
-                          : "Ready to replay"}
+                        {isPlaying ? "Playing live" : "Ready to replay"}
                       </div>
 
                       <div className="control-meta">
-                        {apiReady
-                          ? "YouTube sync"
-                          : "demo clock fallback"}
+                        {apiReady ? "YouTube sync" : "demo clock fallback"}
                       </div>
                     </div>
                   </div>
@@ -1049,18 +832,12 @@ function App() {
                     </span>
 
                     <button
-                      aria-label={
-                        isMuted ? "Unmute" : "Mute"
-                      }
+                      aria-label={isMuted ? "Unmute" : "Mute"}
                       className="icon-button"
                       onClick={toggleMute}
                       type="button"
                     >
-                      {isMuted ? (
-                        <VolumeX size={15} />
-                      ) : (
-                        <Volume2 size={15} />
-                      )}
+                      {isMuted ? <VolumeX size={15} /> : <Volume2 size={15} />}
                     </button>
 
                     <button
@@ -1086,13 +863,9 @@ function App() {
                     {String(selectedTrack.number).padStart(2, "0")}
                   </span>
 
-                  <h2 className="track-title">
-                    {selectedTrack.title}
-                  </h2>
+                  <h2 className="track-title">{selectedTrack.title}</h2>
 
-                  <p className="track-artist">
-                    {selectedTrack.artist}
-                  </p>
+                  <p className="track-artist">{selectedTrack.artist}</p>
                 </div>
 
                 <div className="track-tags">
@@ -1100,30 +873,21 @@ function App() {
                     {selectedTrack.type ?? "PERFORMANCE"}
                   </span>
 
-                  <span className="tag">
-                    {selectedTrack.duration}
-                  </span>
+                  <span className="tag">{selectedTrack.duration}</span>
 
                   <button
                     aria-label={
-                      isLiked
-                        ? "Remove from saved rooms"
-                        : "Save this room"
+                      isLiked ? "Remove from saved rooms" : "Save this room"
                     }
                     className={
                       isLiked
                         ? "icon-button save-button saved"
                         : "icon-button save-button"
                     }
-                    onClick={() =>
-                      setIsLiked((value) => !value)
-                    }
+                    onClick={() => setIsLiked((value) => !value)}
                     type="button"
                   >
-                    <Heart
-                      size={15}
-                      fill={isLiked ? "currentColor" : "none"}
-                    />
+                    <Heart size={15} fill={isLiked ? "currentColor" : "none"} />
                   </button>
                 </div>
               </div>
@@ -1135,24 +899,24 @@ function App() {
               <div className="lyrics-headline">
                 <div>
                   <div className="eyebrow">
-                    TRACK /{" "}
-                    {String(selectedTrack.number).padStart(2, "0")}
+                    TRACK / {String(selectedTrack.number).padStart(2, "0")}
                   </div>
 
-                  <h2 className="lyrics-title">
-                    One room. One cue sheet.
-                  </h2>
+                  <h2 className="lyrics-title">Every word. Every chant. Right on cue.</h2>
                 </div>
 
                 <div className="sync-status">
                   <span className="live-dot" />
+
                   {apiReady ? "synced" : "demo sync"}
                 </div>
               </div>
 
               <div className="transcript-track">
                 {selectedTrack.title}
+
                 <span>·</span>
+
                 {selectedTrack.artist}
               </div>
             </div>
@@ -1160,15 +924,14 @@ function App() {
             <div className="lyric-scroll">
               {transcriptLines.map((line, index) => {
                 const isActive = line.time === activeCueTime;
+
                 const isStandaloneChant = line.source === "FANCHANT";
 
                 return (
                   <button
                     className={
                       "lyric-line " +
-                      (isStandaloneChant
-                        ? "tone-chant"
-                        : `tone-${line.tone}`) +
+                      (isStandaloneChant ? "tone-chant" : `tone-${line.tone}`) +
                       (isActive ? " active" : "")
                     }
                     key={`${selectedTrack.id}-${line.source}-${line.time}-${index}`}
@@ -1185,11 +948,11 @@ function App() {
                               (segment.chantTime ?? line.time);
 
                             /*
-                             * Standalone fanchant:
+                             * Standalone:
                              * ALWAYS GREEN.
                              *
-                             * Sing-along fanchant:
-                             * GREEN before cue,
+                             * Sing-along:
+                             * GREEN before cue.
                              * ORANGE after cue.
                              */
                             if (isStandaloneChant) {
@@ -1233,16 +996,11 @@ function App() {
                       </span>
 
                       {line.note && (
-                        <span className="line-note">
-                          {line.note}
-                        </span>
+                        <span className="line-note">{line.note}</span>
                       )}
                     </span>
 
-                    <span
-                      className="line-pulse"
-                      aria-hidden="true"
-                    />
+                    <span className="line-pulse" aria-hidden="true" />
                   </button>
                 );
               })}
@@ -1251,11 +1009,7 @@ function App() {
         </section>
       </main>
 
-      {copied && (
-        <div className="toast-note">
-          Room link copied
-        </div>
-      )}
+      {copied && <div className="toast-note">Room link copied</div>}
     </div>
   );
 }

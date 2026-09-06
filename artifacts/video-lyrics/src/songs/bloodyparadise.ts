@@ -1,12 +1,12 @@
-import type { Track } from "./types";
-import { lines } from "./helpers";
+import { lines, type Track } from "./types";
 
 export const bloodyParadise: Track = {
   id: "BLOODY PARADISE",
   number: 1,
   title: "BLOODY PARADISE",
   artist: "ENHYPEN",
-  section: "OFFICIAL MUSIC VIDEO",
+  type: "OFFICIAL MUSIC VIDEO",
+  section: "SONGS",
   duration: "2:14",
   videoId: "MT-4Bk1Lw8g",
 
@@ -83,37 +83,27 @@ export const bloodyParadise: Track = {
   ]),
 
   fanchant: lines([
-    [5, "EN! HA! I! PEUN!"],
-
+    [5, "EN! HA! I! PEUN"],
     [22, "We're going M.I.A"],
-
     [35, "Tteugeopge, watch me take"],
-
     [44, "In our bloody paradise"],
     [52, "In our bloody paradise"],
-
     [54, "FLY YA YA YA YA"],
     [56, "FLY YA YA YA YA"],
     [58, "FLY YA YA YA YA"],
-
     [76, "We're going M.I.A"],
-
     [89, "Tteugeopge, watch me take"],
-
     [97, "In our bloody paradise"],
     [105, "In our bloody paradise"],
-
     [108, "FLY YA YA YA YA"],
     [110, "FLY YA YA YA YA"],
     [112, "FLY YA YA YA YA"],
-
     [115, "FLY YA YA YA YA"],
     [117, "FLY YA YA YA YA"],
     [119, "FLY YA YA YA YA"],
-
     [121, "YANG JUNGWON, PARK JONGSEONG"],
     [123, "SIM JAEYUN, PARK SUNGHOON"],
     [125, "KIM SUNOO, NI-KI"],
-    [128, "EN! HA! I! PEUN!"],
+    [128, "EN! HA! I! PEUN"],
   ]),
 };

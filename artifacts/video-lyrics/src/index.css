@@ -81,23 +81,18 @@ button {
   -webkit-tap-highlight-color: transparent;
 }
 
-/* =========================================
-   SHELL
-========================================= */
-
+/* SHELL */
 .studio-shell {
   min-height: 100dvh;
   overflow: hidden;
   position: relative;
   color: var(--ink);
-
   background:
     linear-gradient(
       rgba(23, 23, 20, 0.028) 1px,
       transparent 1px
     ),
     var(--paper-deep);
-
   background-size: 100% 8px;
 }
 
@@ -108,14 +103,10 @@ button {
   pointer-events: none;
   opacity: 0.035;
   z-index: 10;
-
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.3'/%3E%3C/svg%3E");
 }
 
-/* =========================================
-   TOP BAR
-========================================= */
-
+/* TOP BAR */
 .studio-topbar {
   align-items: center;
   background: var(--paper);
@@ -219,10 +210,7 @@ button {
   padding: 0.58rem 0.8rem;
 }
 
-/* =========================================
-   HEADER
-========================================= */
-
+/* HEADER */
 .app-main {
   margin: 0 auto;
   max-width: 1640px;
@@ -276,10 +264,7 @@ button {
   width: 0.35rem;
 }
 
-/* =========================================
-   LEGEND
-========================================= */
-
+/* LEGEND */
 .legend-strip {
   align-items: center;
   border-bottom: 1px solid var(--border);
@@ -335,20 +320,15 @@ button {
   background: var(--red);
 }
 
-/* =========================================
-   WORKSPACE
-========================================= */
-
+/* WORKSPACE */
 .workspace {
   align-items: start;
   display: grid;
   gap: 1rem;
-
   grid-template-columns:
     minmax(325px, 0.92fr)
     minmax(430px, 1.48fr)
     minmax(325px, 0.92fr);
-
   margin-top: 1.25rem;
 }
 
@@ -360,10 +340,7 @@ button {
   box-shadow: 0.35rem 0.35rem 0 var(--ink);
 }
 
-/* =========================================
-   SETLIST
-========================================= */
-
+/* SETLIST */
 .setlist-panel {
   min-height: 100%;
   padding: 1.2rem 1.15rem 1.25rem;
@@ -433,48 +410,34 @@ button {
   color: var(--ink);
   display: grid;
   gap: 0.42rem;
-  grid-template-columns: 1.45rem minmax(0, 1fr);
+  grid-template-columns: 1.45rem minmax(0, 1fr) auto;
   min-height: 2.2rem;
   padding: 0.35rem 0.42rem;
   text-align: left;
   transition: 150ms ease;
 }
 
-.set-row:hover {
-  background: var(--yellow-soft);
-  transform: translateX(2px);
-}
-
-.set-row.selected {
-  background: var(--red);
-  border-color: var(--red);
-  color: var(--paper);
-  transform: translateX(4px);
-}
-
-.set-number {
-  color: var(--muted-foreground);
-  font-family: var(--app-font-mono);
-  font-size: 0.55rem;
-}
-
-.selected .set-number {
-  color: var(--paper);
-}
-
 .set-song {
   font-family: var(--app-font-display);
   font-size: 0.69rem;
   font-weight: 700;
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-/* =========================================
-   VIDEO
-========================================= */
+.set-duration {
+  color: var(--muted-foreground);
+  font-family: var(--app-font-mono);
+  font-size: 0.55rem;
+  white-space: nowrap;
+}
 
+.selected .set-duration {
+  color: var(--paper);
+}
+/* VIDEO */
 .video-wrap {
   aspect-ratio: 16 / 9;
   background: var(--ink);
@@ -542,10 +505,7 @@ button {
   text-transform: uppercase;
 }
 
-/* =========================================
-   CONTROLS
-========================================= */
-
+/* CONTROLS */
 .stage-controls {
   background: var(--ink);
   color: var(--paper);
@@ -643,10 +603,7 @@ button {
   width: 1.9rem;
 }
 
-/* =========================================
-   SONG META
-========================================= */
-
+/* SONG META */
 .song-meta {
   align-items: center;
   display: flex;
@@ -710,10 +667,7 @@ button {
   color: var(--paper);
 }
 
-/* =========================================
-   LYRICS
-========================================= */
-
+/* LYRICS */
 .lyrics-card {
   min-height: 100%;
   overflow: hidden;
@@ -800,43 +754,33 @@ button {
   transform: translateX(2px);
 }
 
-/* =========================================
-   LYRIC COLORS + CUES
-========================================= */
-
-/* Normal lyrics */
+/* LYRIC COLORS + CUES */
 .segment-lyric {
   color: var(--ink);
 }
 
-/* Current lyric */
 .segment-lyric.lyric-active {
   color: var(--red);
 }
 
-/* Sing-along fanchant BEFORE cue */
 .segment-chant {
   color: var(--green);
 }
 
-/* Sing-along fanchant AFTER cue */
 .segment-chant.chant-active {
   color: var(--orange);
 }
 
-/* Standalone fanchants are ALWAYS GREEN */
 .segment-chant.standalone-chant {
   color: var(--green);
 }
 
-/* Current row = faded red highlight */
 .lyric-line.active {
   background: var(--red-soft);
   border-color: var(--red);
   transform: translateX(4px);
 }
 
-/* Standalone fanchant stays GREEN even when active */
 .lyric-line.tone-chant {
   color: var(--green);
 }
@@ -885,10 +829,7 @@ button {
   animation: line-pulse 1.4s ease-in-out infinite;
 }
 
-/* =========================================
-   TOAST
-========================================= */
-
+/* TOAST */
 .toast-note {
   background: var(--green);
   border: 1px solid var(--ink);
@@ -903,10 +844,7 @@ button {
   z-index: 40;
 }
 
-/* =========================================
-   ANIMATIONS
-========================================= */
-
+/* ANIMATIONS */
 @keyframes line-pulse {
   0%,
   100% {
@@ -920,10 +858,7 @@ button {
   }
 }
 
-/* =========================================
-   TABLET
-========================================= */
-
+/* TABLET */
 @media (max-width: 1280px) {
   .workspace {
     grid-template-columns:
@@ -932,19 +867,20 @@ button {
       minmax(300px, 0.85fr);
   }
 
+  /*
+    Keep number | song | duration on ONE line.
+    Do not shrink the song text here.
+  */
   .set-row {
-    grid-template-columns: 1.25rem minmax(0, 1fr);
+    grid-template-columns: 1.45rem minmax(0, 1fr) auto;
   }
 
   .set-song {
-    font-size: 0.61rem;
+    font-size: 0.69rem;
   }
 }
 
-/* =========================================
-   SMALL DESKTOP
-========================================= */
-
+/* SMALL DESKTOP */
 @media (max-width: 1040px) {
   .workspace {
     grid-template-columns:
@@ -969,10 +905,7 @@ button {
   }
 }
 
-/* =========================================
-   MOBILE
-========================================= */
-
+/* MOBILE */
 @media (max-width: 760px) {
   .studio-topbar {
     height: 4.1rem;
@@ -1035,10 +968,7 @@ button {
   }
 }
 
-/* =========================================
-   SMALL MOBILE
-========================================= */
-
+/* SMALL MOBILE */
 @media (max-width: 500px) {
   .brand-name {
     font-size: 0.9rem;
