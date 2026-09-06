@@ -1,6 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
+
 @import 'tailwindcss';
 @import 'tw-animate-css';
+
 @plugin "@tailwindcss/typography";
 
 @custom-variant dark (&:is(.dark *));
@@ -29,9 +31,11 @@
   --color-accent-foreground: hsl(var(--accent-foreground));
   --color-destructive: hsl(var(--destructive));
   --color-destructive-foreground: hsl(var(--destructive-foreground));
+
   --font-sans: var(--app-font-sans);
   --font-serif: var(--app-font-display);
   --font-mono: var(--app-font-mono);
+
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -41,30 +45,40 @@
 :root {
   --background: 46 54% 92%;
   --foreground: 60 8% 9%;
+
   --border: 45 15% 80%;
   --input: 45 15% 73%;
   --ring: 352 66% 47%;
+
   --card: 48 100% 99%;
   --card-foreground: 60 8% 9%;
   --card-border: 45 20% 83%;
+
   --popover: 48 100% 99%;
   --popover-foreground: 60 8% 9%;
   --popover-border: 45 20% 78%;
+
   --primary: 352 66% 47%;
   --primary-foreground: 48 100% 99%;
   --primary-border: hsl(352 66% 47%);
+
   --secondary: 79 61% 36%;
   --secondary-foreground: 48 100% 99%;
   --secondary-border: hsl(79 61% 36%);
+
   --muted: 45 22% 86%;
   --muted-foreground: 55 7% 38%;
+
   --accent: 46 88% 55%;
   --accent-foreground: 60 8% 9%;
+
   --destructive: 352 66% 47%;
   --destructive-foreground: 48 100% 99%;
+
   --chart-1: 352 66% 47%;
   --chart-2: 79 61% 36%;
   --chart-3: 46 88% 55%;
+
   --sidebar: 48 100% 99%;
   --sidebar-foreground: 60 8% 9%;
   --sidebar-border: 45 15% 80%;
@@ -73,20 +87,30 @@
   --sidebar-accent: 79 61% 36%;
   --sidebar-accent-foreground: 48 100% 99%;
   --sidebar-ring: 352 66% 47%;
+
   --app-font-sans: 'DM Sans', sans-serif;
   --app-font-display: 'Bricolage Grotesque', sans-serif;
   --app-font-mono: 'Space Mono', monospace;
+
   --radius: 0.35rem;
   --spacing: 0.25rem;
+
   --elevate-1: rgba(23, 23, 20, 0.04);
   --elevate-2: rgba(23, 23, 20, 0.08);
+
   --ink: #171714;
   --paper: #fffdf7;
   --paper-deep: #f6f0df;
+
   --red: #d52e45;
   --red-soft: #f9dce0;
+
   --green: #1e8b61;
   --green-soft: #dcefe5;
+
+  --orange: #e88732;
+  --orange-soft: #f9e4d0;
+
   --yellow: #f2c94c;
   --yellow-soft: #fff3c9;
 }
@@ -128,19 +152,29 @@ button {
   cursor: pointer;
 }
 
+/* =========================================================
+   MAIN SHELL
+   ========================================================= */
+
 .studio-shell {
   min-height: 100dvh;
   overflow: hidden;
   position: relative;
   color: var(--ink);
+
   background:
-    linear-gradient(rgba(23, 23, 20, 0.028) 1px, transparent 1px),
+    linear-gradient(
+      rgba(23, 23, 20, 0.028) 1px,
+      transparent 1px
+    ),
     var(--paper-deep);
+
   background-size: 100% 8px;
 }
 
 .studio-shell::before {
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.3'/%3E%3C/svg%3E");
+
   content: '';
   inset: 0;
   opacity: 0.035;
@@ -148,6 +182,10 @@ button {
   position: fixed;
   z-index: 10;
 }
+
+/* =========================================================
+   TOP BAR
+   ========================================================= */
 
 .studio-topbar {
   align-items: center;
@@ -268,7 +306,9 @@ button {
   font-size: 0.71rem;
   gap: 0.45rem;
   padding: 0.58rem 0.8rem;
-  transition: transform 160ms ease, opacity 160ms ease;
+  transition:
+    transform 160ms ease,
+    opacity 160ms ease;
 }
 
 .share-button:hover,
@@ -276,6 +316,10 @@ button {
 .play-button:hover {
   transform: translateY(-2px);
 }
+
+/* =========================================================
+   MAIN
+   ========================================================= */
 
 .app-main {
   margin: 0 auto;
@@ -328,6 +372,10 @@ button {
   width: 0.35rem;
 }
 
+/* =========================================================
+   LEGEND
+   ========================================================= */
+
 .legend-strip {
   align-items: center;
   border-bottom: 1px solid var(--border);
@@ -369,26 +417,33 @@ button {
 }
 
 .chant-swatch {
-  background: var(--red);
+  background: var(--green);
 }
 
-.sing-swatch {
-  background: var(--green);
+.singalong-swatch {
+  background: var(--orange);
 }
 
 .lyric-swatch {
   background: var(--ink);
 }
 
-.highlight-swatch {
-  background: var(--yellow);
+.active-swatch {
+  background: var(--red);
 }
+
+/* =========================================================
+   WORKSPACE
+   ========================================================= */
 
 .workspace {
   align-items: start;
   display: grid;
-  gap: 1rem;
-  grid-template-columns: minmax(325px, 0.92fr) minmax(430px, 1.48fr) minmax(325px, 0.92fr);
+  gap: 1.2rem;
+  grid-template-columns:
+    minmax(260px, 0.7fr)
+    minmax(600px, 1.8fr)
+    minmax(360px, 0.95fr);
   margin-top: 1.25rem;
 }
 
@@ -409,6 +464,10 @@ button {
   border: 1px solid var(--ink);
   box-shadow: 0.35rem 0.35rem 0 var(--ink);
 }
+
+/* =========================================================
+   SETLIST
+   ========================================================= */
 
 .setlist-panel {
   min-height: 100%;
@@ -472,9 +531,9 @@ button {
 }
 
 .set-rows {
-  display: grid;
-  gap: 0.34rem;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  display: flex;
+  flex-direction: column;
+  width: 100%;
 }
 
 .set-row {
@@ -488,7 +547,10 @@ button {
   min-height: 2.2rem;
   padding: 0.35rem 0.42rem;
   text-align: left;
-  transition: transform 150ms ease, background-color 150ms ease, color 150ms ease;
+  transition:
+    transform 150ms ease,
+    background-color 150ms ease,
+    color 150ms ease;
 }
 
 .set-row:hover {
@@ -527,12 +589,13 @@ button {
   display: none;
 }
 
+/* =========================================================
+   VIDEO
+   ========================================================= */
+
 .performance-column {
   min-width: 0;
-}
-
-.stage-card {
-  overflow: hidden;
+  width: 100%;
 }
 
 .video-wrap {
@@ -540,6 +603,7 @@ button {
   background: var(--ink);
   overflow: hidden;
   position: relative;
+  width: 100%;
 }
 
 .video-wrap iframe,
@@ -615,6 +679,10 @@ button {
   animation: spin 900ms linear infinite;
 }
 
+/* =========================================================
+   PLAYER CONTROLS
+   ========================================================= */
+
 .stage-controls {
   background: var(--ink);
   color: var(--paper);
@@ -629,7 +697,12 @@ button {
 
 .progress-range {
   appearance: none;
-  background: linear-gradient(90deg, var(--red) var(--progress), rgba(255, 253, 247, 0.26) var(--progress));
+  background:
+    linear-gradient(
+      90deg,
+      var(--red) var(--progress),
+      rgba(255, 253, 247, 0.26) var(--progress)
+    );
   border-radius: 999px;
   height: 0.25rem;
   outline: none;
@@ -704,7 +777,9 @@ button {
   display: inline-flex;
   height: 1.9rem;
   justify-content: center;
-  transition: transform 160ms ease, opacity 160ms ease;
+  transition:
+    transform 160ms ease,
+    opacity 160ms ease;
   width: 1.9rem;
 }
 
@@ -712,6 +787,10 @@ button {
   opacity: 0.65;
   transform: translateY(-1px);
 }
+
+/* =========================================================
+   SONG META
+   ========================================================= */
 
 .song-meta {
   align-items: center;
@@ -776,6 +855,10 @@ button {
   border-color: var(--red);
   color: var(--paper);
 }
+
+/* =========================================================
+   LYRICS PANEL
+   ========================================================= */
 
 .lyrics-card {
   min-height: 100%;
@@ -853,6 +936,10 @@ button {
   background: var(--border);
 }
 
+/* =========================================================
+   LYRIC LINES
+   ========================================================= */
+
 .lyric-line {
   align-items: flex-start;
   background: transparent;
@@ -861,8 +948,13 @@ button {
   display: flex;
   margin: 0.13rem 0;
   padding: 0.78rem 0.8rem;
+  position: relative;
   text-align: left;
-  transition: transform 160ms ease, background-color 160ms ease, opacity 160ms ease;
+  transition:
+    transform 160ms ease,
+    background-color 160ms ease,
+    border-color 160ms ease,
+    opacity 160ms ease;
   width: 100%;
 }
 
@@ -871,25 +963,100 @@ button {
   transform: translateX(2px);
 }
 
-.lyric-line.active {
-  background: var(--green-soft);
-  border-color: var(--ink);
-  transform: translateX(4px);
+/*
+ * ========================================================
+ * NORMAL COLORS
+ * ========================================================
+ *
+ * Normal lyric       = BLACK
+ * Fanchant           = GREEN
+ * Sing-along         = ORANGE
+ */
+
+.lyric-tone-lyric {
+  color: var(--ink);
 }
 
-.lyric-line.tone-singalong {
+.lyric-tone-singalong {
+  color: var(--orange);
+}
+
+.lyric-tone-chant {
   color: var(--green);
 }
 
-.lyric-line.tone-chant {
+/*
+ * ========================================================
+ * ACTIVE LINE
+ * ========================================================
+ *
+ * The WHOLE LINE gets a faded red background.
+ *
+ * But the individual text colors remain meaningful:
+ *
+ * normal lyric     -> RED
+ * fanchant         -> GREEN
+ * sing-along       -> ORANGE
+ */
+
+.lyric-line.active {
+  background: var(--red-soft);
+  border-color: rgba(213, 46, 69, 0.22);
+  transform: translateX(4px);
+}
+
+/*
+ * Active normal lyric text becomes red.
+ */
+.lyric-line.active .lyric-part {
   color: var(--red);
 }
 
+/*
+ * Fanchant stays GREEN even when its lyric line
+ * becomes active.
+ */
+.lyric-line.active .fanchant-part {
+  color: var(--green);
+}
+
+/*
+ * Sing-along stays ORANGE even when active.
+ */
+.lyric-line.active .lyric-part {
+  color: #c92f2f;
+}
+
+.lyric-line.active .singalong-part {
+  color: #d97706;
+}
+
+.lyric-line.active .fanchant-part {
+  color: #2f8f5b;
+}
+
+/*
+ * Standalone fanchant stays GREEN even when active.
+ */
+.lyric-line.active.standalone-fanchant {
+  color: var(--green);
+}
+
+.lyric-line.active.standalone-fanchant .line-text {
+  color: var(--green);
+}
+
+/* =========================================================
+   LYRIC TEXT
+   ========================================================= */
+
 .line-content {
   flex: 1;
+  min-width: 0;
 }
 
 .line-text {
+  display: block;
   font-family: var(--app-font-display);
   font-size: 1.06rem;
   font-weight: 500;
@@ -897,9 +1064,123 @@ button {
   line-height: 1.05;
 }
 
+/*
+ * Normal fanchant inside lyric.
+ */
+.fanchant-part {
+  color: var(--green);
+  font-weight: 700;
+  transition: color 160ms ease;
+}
+
+/*
+ * Normal lyric portion.
+ */
+.lyric-part {
+  color: var(--ink);
+  transition: color 160ms ease;
+}
+
+/*
+ * Sing-along line.
+ */
+.lyric-tone-singalong .lyric-part {
+  color: var(--orange);
+}
+
+.lyric-tone-singalong .line-text {
+  color: var(--orange);
+}
+
+/*
+ * If a sing-along lyric contains a fanchant,
+ * the fanchant still wins and stays green.
+ */
+.lyric-tone-singalong .fanchant-part {
+  color: var(--green);
+}
+
+/*
+ * Active lines are slightly bolder.
+ */
 .lyric-line.active .line-text {
   font-weight: 800;
 }
+
+/*
+ * Notes beneath lyrics.
+ */
+.line-note {
+  color: var(--muted-foreground);
+  display: block;
+  font-size: 0.5rem;
+  margin-top: 0.35rem;
+  opacity: 0.7;
+}
+
+/*
+ * Active note.
+ */
+.lyric-line.active .line-note {
+  color: var(--red);
+}
+
+/* =========================================================
+   ACTIVE LINE ACCENT
+   ========================================================= */
+
+.line-pulse {
+  background: var(--red);
+  border-radius: 50%;
+  height: 0.35rem;
+  margin-left: 0.65rem;
+  margin-top: 0.25rem;
+  opacity: 0;
+  transform: scale(0.8);
+  width: 0.35rem;
+}
+
+.lyric-line.active .line-pulse {
+  animation: line-pulse 1.2s ease-in-out infinite;
+  opacity: 1;
+}
+
+/* Embedded fanchant that hasn't happened yet */
+.fanchant-part {
+  color: #2f8f5b;
+}
+
+/* Embedded fanchant when its cue is reached */
+.singalong-part {
+  color: #d97706;
+}
+
+/* Normal lyric when its line is active */
+.lyric-line.active .lyric-part {
+  color: #c92f2f;
+}
+
+/*
+ * Keep the active sing-along fanchant orange.
+ * This prevents the active lyric styling from
+ * turning it red.
+ */
+.lyric-line.active .singalong-part {
+  color: #d97706;
+}
+
+/* Standalone fanchants stay green */
+.lyric-line.lyric-tone-chant {
+  color: #2f8f5b;
+}
+
+/* Active standalone fanchants stay green */
+.lyric-line.lyric-tone-chant.active {
+  color: #2f8f5b;
+}
+/* =========================================================
+   UNDER GRID
+   ========================================================= */
 
 .under-grid {
   display: grid;
@@ -920,7 +1201,9 @@ button {
 .change-button {
   color: var(--ink);
   text-align: left;
-  transition: transform 160ms ease, background-color 160ms ease;
+  transition:
+    transform 160ms ease,
+    background-color 160ms ease;
 }
 
 .change-button:hover {
@@ -971,6 +1254,10 @@ button {
   text-align: right;
   white-space: nowrap;
 }
+
+/* =========================================================
+   MODAL
+   ========================================================= */
 
 .modal-backdrop {
   align-items: center;
@@ -1053,7 +1340,9 @@ button {
   font-size: 0.7rem;
   font-weight: 700;
   padding: 0.65rem 0.85rem;
-  transition: transform 160ms ease, opacity 160ms ease;
+  transition:
+    transform 160ms ease,
+    opacity 160ms ease;
 }
 
 .secondary-action {
@@ -1074,6 +1363,10 @@ button {
   transform: translateY(-2px);
 }
 
+/* =========================================================
+   TOAST
+   ========================================================= */
+
 .toast-note {
   background: var(--green);
   border: 1px solid var(--ink);
@@ -1088,22 +1381,47 @@ button {
   z-index: 40;
 }
 
+/* =========================================================
+   ANIMATIONS
+   ========================================================= */
+
 @keyframes line-pulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(213, 46, 69, 0.35); transform: scale(0.88); }
-  50% { box-shadow: 0 0 0 5px rgba(213, 46, 69, 0); transform: scale(1.15); }
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 0 rgba(213, 46, 69, 0.35);
+    transform: scale(0.88);
+  }
+
+  50% {
+    box-shadow:
+      0 0 0 5px rgba(213, 46, 69, 0);
+    transform: scale(1.15);
+  }
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
 
 @media (max-width: 1280px) {
   .workspace {
-    grid-template-columns: minmax(285px, 0.85fr) minmax(390px, 1.35fr) minmax(300px, 0.85fr);
+    grid-template-columns:
+      minmax(285px, 0.85fr)
+      minmax(390px, 1.35fr)
+      minmax(300px, 0.85fr);
   }
 
   .set-row {
-    grid-template-columns: 1.25rem minmax(0, 1fr);
+    grid-template-columns:
+      1.25rem
+      minmax(0, 1fr);
   }
 
   .set-song {
@@ -1113,7 +1431,9 @@ button {
 
 @media (max-width: 1040px) {
   .workspace {
-    grid-template-columns: minmax(270px, 0.8fr) minmax(380px, 1.2fr);
+    grid-template-columns:
+      minmax(270px, 0.8fr)
+      minmax(380px, 1.2fr);
   }
 
   .lyrics-card {
@@ -1123,7 +1443,8 @@ button {
   .lyric-scroll {
     display: grid;
     gap: 0.2rem 0.5rem;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
     max-height: 25rem;
     min-height: 0;
   }
@@ -1191,7 +1512,7 @@ button {
   }
 
   .set-rows {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: 1fr;
   }
 
   .lyric-scroll {
@@ -1251,5 +1572,13 @@ button {
 
   .progress-caption {
     text-align: left;
+  }
+
+  .lyric-line {
+    padding: 0.72rem 0.65rem;
+  }
+
+  .line-text {
+    font-size: 0.98rem;
   }
 }
