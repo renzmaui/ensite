@@ -108,6 +108,9 @@
 
   --yellow: #f2c94c;
   --yellow-soft: #fff3c9;
+
+  --orange: #d97706;
+  --orange-soft: #fff0d6;
 }
 
 .dark {
@@ -432,11 +435,11 @@ button {
 }
 
 .chant-swatch {
-  background: var(--red);
+  background: var(--green);
 }
 
 .sing-swatch {
-  background: var(--green);
+  background: var(--orange);
 }
 
 .lyric-swatch {
@@ -444,7 +447,7 @@ button {
 }
 
 .highlight-swatch {
-  background: var(--yellow);
+  background: var(--red);
 }
 
 /* =========================================
@@ -554,10 +557,7 @@ button {
 .set-rows {
   display: grid;
   gap: 0.34rem;
-  grid-template-columns: repeat(
-    2,
-    minmax(0, 1fr)
-  );
+  grid-template-columns: 1fr;
 }
 
 .set-row {
@@ -1017,32 +1017,205 @@ button {
   background: var(--yellow-soft);
   transform: translateX(2px);
 }
+/* =========================================
+   LYRIC COLORS + CUES
+========================================= */
 
-/* Normal active lyric */
-.lyric-line.active {
-  background: var(--green-soft);
-  border-color: var(--ink);
+/*
+  COLOR SYSTEM
+
+  NORMAL LYRIC
+  Before cue:
+    BLACK
+
+  Active:
+    RED + FADED RED BOX
+
+
+  STANDALONE FANCHANT
+  Before cue:
+    GREEN
+
+  Active:
+    GREEN + FADED RED BOX
+
+
+  SING-ALONG / PARTIAL FANCHANT
+  Before cue:
+    FANCHANT PORTION = GREEN
+    LYRIC PORTION = BLACK
+
+  Active:
+    FANCHANT PORTION = ORANGE
+    LYRIC PORTION = RED
+
+    Entire row gets faded red box.
+*/
+
+
+/* -----------------------------------------
+   LYRIC ROW
+----------------------------------------- */
+
+.lyric-line.tone-lyric,
+.lyric-line.tone-singalong,
+.lyric-line.tone-chant {
+  background: transparent;
+  border-color: transparent;
+}
+
+
+/* -----------------------------------------
+   NORMAL LYRIC
+----------------------------------------- */
+
+/* Inactive normal lyric */
+.lyric-line.tone-lyric {
+  color: var(--ink);
+}
+
+/* Active normal lyric */
+.lyric-line.tone-lyric.active {
+  background: var(--red-soft);
+  border-color: var(--red);
+  color: var(--red);
   transform: translateX(4px);
 }
 
-/* Sing-along */
-.lyric-line.tone-singalong {
+
+/* -----------------------------------------
+   STANDALONE FANCHANT
+----------------------------------------- */
+
+/* Inactive standalone fanchant */
+.lyric-line.tone-chant {
   color: var(--green);
 }
 
-/* Fanchant */
-.lyric-line.tone-chant {
+/* Active standalone fanchant */
+.lyric-line.tone-chant.active {
+  background: var(--red-soft);
+  border-color: var(--red);
+  color: var(--green);
+  transform: translateX(4px);
+}
+
+
+/* -----------------------------------------
+   SING-ALONG ROW
+----------------------------------------- */
+
+/*
+  The ROW itself does not become orange.
+
+  Individual spans control the colors.
+*/
+.lyric-line.tone-singalong {
+  color: var(--ink);
+}
+
+/*
+  Active sing-along row gets the faded red box.
+*/
+.lyric-line.tone-singalong.active {
+  background: var(--red-soft);
+  border-color: var(--red);
+  transform: translateX(4px);
+}
+
+
+/* -----------------------------------------
+   SING-ALONG TEXT PARTS
+----------------------------------------- */
+
+/*
+  Normal lyric portion.
+
+  Before cue:
+    BLACK
+*/
+.lyric-line.tone-singalong
+.lyric-part {
+  color: var(--ink);
+}
+
+
+/*
+  Fanchant portion.
+
+  Before cue:
+    GREEN
+*/
+.lyric-line.tone-singalong
+.chant-part {
+  color: var(--green);
+}
+
+
+/*
+  When the sing-along cue becomes active:
+
+  Fanchant portion:
+    ORANGE
+*/
+.lyric-line.tone-singalong.active
+.chant-part {
+  color: var(--orange);
+}
+
+
+/*
+  When the sing-along cue becomes active:
+
+  Remaining lyric:
+    RED
+*/
+.lyric-line.tone-singalong.active
+.lyric-part {
   color: var(--red);
 }
 
-/* Keep active fanchant red */
-.lyric-line.tone-chant.active {
-  color: var(--red);
+
+/* -----------------------------------------
+   STANDALONE FANCHANT TEXT
+----------------------------------------- */
+
+.chant-text {
+  color: var(--green);
 }
+
+.lyric-line.tone-chant.active
+.chant-text {
+  color: var(--green);
+}
+
+
+/* =========================================
+   LYRIC CONTENT
+========================================= */
 
 .line-content {
   flex: 1;
+  min-width: 0;
 }
+
+
+/* -----------------------------------------
+   HIDDEN TIMESTAMPS + LABELS
+----------------------------------------- */
+
+.line-time {
+  display: none;
+}
+
+.line-label {
+  display: none;
+}
+
+
+/* -----------------------------------------
+   LYRIC TEXT
+----------------------------------------- */
 
 .line-text {
   font-family: var(--app-font-display);
@@ -1052,36 +1225,16 @@ button {
   line-height: 1.05;
 }
 
+
+/* Active cue slightly bolder */
 .lyric-line.active .line-text {
   font-weight: 800;
 }
 
-.line-time {
-  color: var(--muted-foreground);
-  font-family: var(--app-font-mono);
-  font-size: 0.53rem;
-  margin-right: 0.65rem;
-  min-width: 2rem;
-  padding-top: 0.1rem;
-}
 
-.line-label {
-  color: var(--muted-foreground);
-  display: block;
-  font-family: var(--app-font-mono);
-  font-size: 0.48rem;
-  letter-spacing: 0.08em;
-  margin-bottom: 0.22rem;
-  text-transform: uppercase;
-}
-
-.tone-singalong .line-label {
-  color: var(--green);
-}
-
-.tone-chant .line-label {
-  color: var(--red);
-}
+/* -----------------------------------------
+   NOTES
+----------------------------------------- */
 
 .line-note {
   color: var(--muted-foreground);
@@ -1090,6 +1243,11 @@ button {
   margin-top: 0.3rem;
   opacity: 0.75;
 }
+
+
+/* -----------------------------------------
+   ACTIVE CUE INDICATOR
+----------------------------------------- */
 
 .line-pulse {
   background: currentColor;
@@ -1103,8 +1261,7 @@ button {
 
 .lyric-line.active .line-pulse {
   opacity: 1;
-  animation:
-    line-pulse 1.4s ease-in-out infinite;
+  animation: line-pulse 1.4s ease-in-out infinite;
 }
 
 /* =========================================
@@ -1471,11 +1628,7 @@ button {
   }
 
   .set-rows {
-    grid-template-columns:
-      repeat(
-        2,
-        minmax(0, 1fr)
-      );
+    grid-template-columns: 1fr;
   }
 
   .lyric-scroll {
