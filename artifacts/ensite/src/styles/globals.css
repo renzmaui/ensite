@@ -1,0 +1,132 @@
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
+
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+@plugin "@tailwindcss/typography";
+
+@custom-variant dark (&:is(.dark *));
+
+
+@theme inline {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-border: hsl(var(--border));
+
+  --font-sans: var(--app-font-sans);
+  --font-serif: var(--app-font-display);
+  --font-mono: var(--app-font-mono);
+}
+
+
+:root {
+
+  --background: 46 54% 92%;
+  --foreground: 60 8% 9%;
+
+  --border: 45 15% 80%;
+
+  --muted-foreground: 55 7% 38%;
+
+
+  --app-font-sans:
+    'DM Sans',
+    sans-serif;
+
+  --app-font-display:
+    'Bricolage Grotesque',
+    sans-serif;
+
+  --app-font-mono:
+    'Space Mono',
+    monospace;
+
+
+  /* ENSITE COLORS */
+
+  --ink: #171714;
+
+  --paper:
+    #fffdf7;
+
+  --paper-deep:
+    #f6f0df;
+
+
+  --red:
+    #d52e45;
+
+  --red-soft:
+    #f9dce0;
+
+
+  --green:
+    #1e8b61;
+
+  --yellow:
+    #f2c94c;
+
+  --yellow-soft:
+    #fff3c9;
+
+
+  --orange:
+    #d97706;
+
+}
+
+
+* {
+  box-sizing: border-box;
+}
+
+
+html {
+
+  background:
+    var(--paper-deep);
+
+}
+
+
+body {
+
+  margin: 0;
+
+  min-width: 320px;
+
+  background:
+    var(--paper-deep);
+
+  color:
+    var(--ink);
+
+  font-family:
+    var(--app-font-sans);
+
+}
+
+
+button,
+input {
+
+  font: inherit;
+
+}
+
+
+button {
+
+  cursor: pointer;
+
+  -webkit-tap-highlight-color:
+    transparent;
+
+}
+
+
+a {
+
+  color: inherit;
+
+}

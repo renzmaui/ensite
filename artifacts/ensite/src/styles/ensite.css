@@ -1,0 +1,441 @@
+@charset "UTF-8";
+
+/* =========================================
+   ENSITE MAIN LAYOUT
+========================================= */
+
+.ensite-page {
+
+  min-height: 100dvh;
+
+  display: flex;
+
+  flex-direction: column;
+
+  background:
+    var(--paper-deep);
+
+  color:
+    var(--ink);
+
+}
+
+
+/* =========================================
+   CONTENT
+========================================= */
+
+
+.ensite-content {
+
+  width:
+    min(100% - 4rem, 1100px);
+
+  margin:
+    auto;
+
+  padding:
+    6rem 0 4rem;
+
+}
+
+
+/* LABEL */
+
+.ensite-label {
+
+  margin:
+    0 0 1.5rem;
+
+  color:
+    var(--red);
+
+  font-family:
+    var(--app-font-mono);
+
+  font-size:
+    0.7rem;
+
+  font-weight:
+    700;
+
+  letter-spacing:
+    0.1em;
+
+  text-transform:
+    uppercase;
+
+}
+
+
+/* BIG TITLE */
+
+.ensite-content h1 {
+
+  margin:
+    0;
+
+  max-width:
+    900px;
+
+  font-family:
+    var(--app-font-display);
+
+  font-size:
+    clamp(3.5rem, 9vw, 8rem);
+
+  font-weight:
+    800;
+
+  letter-spacing:
+    -0.08em;
+
+  line-height:
+    0.88;
+
+}
+
+
+.ensite-content h1 span {
+
+  color:
+    var(--red);
+
+}
+
+
+/* DESCRIPTION */
+
+.ensite-description {
+
+  max-width:
+    520px;
+
+  margin:
+    2rem 0 0;
+
+  font-size:
+    1.1rem;
+
+  line-height:
+    1.7;
+
+}
+
+
+/* =========================================
+   ABOUT TEXT
+========================================= */
+
+
+.ensite-about {
+
+  margin-top:
+    4rem;
+
+  max-width:
+    600px;
+
+}
+
+
+.ensite-about p {
+
+  margin:
+    0 0 1.25rem;
+
+  font-size:
+    1.05rem;
+
+  line-height:
+    1.7;
+
+}
+
+
+.ensite-about-highlight {
+
+  font-family:
+    var(--app-font-display);
+
+  font-size:
+    1.8rem;
+
+  font-weight:
+    700;
+
+  letter-spacing:
+    -0.04em;
+
+}
+
+
+/* =========================================
+   PROJECT SECTION
+========================================= */
+
+
+.ensite-section {
+
+  margin-top:
+    5rem;
+
+  border-top:
+    1px solid var(--ink);
+
+  padding-top:
+    2rem;
+
+}
+
+
+.ensite-section-title {
+
+  margin-bottom:
+    1.5rem;
+
+  font-family:
+    var(--app-font-mono);
+
+  font-size:
+    0.7rem;
+
+  font-weight:
+    700;
+
+  letter-spacing:
+    0.1em;
+
+  text-transform:
+    uppercase;
+
+  color:
+    var(--red);
+
+}
+
+
+
+/* PROJECT GRID */
+
+
+.project-grid {
+
+  display:
+    grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap:
+    1.5rem;
+
+}
+
+
+
+/* PROJECT CARD */
+
+
+.project-card {
+
+  background:
+    var(--paper);
+
+  border:
+    1px solid var(--ink);
+
+  padding:
+    1.8rem;
+
+  box-shadow:
+    0.35rem 0.35rem 0 var(--ink);
+
+  transition:
+    transform 150ms ease;
+
+}
+
+
+.project-card:hover {
+
+  transform:
+    translate(-3px,-3px);
+
+}
+
+
+
+.project-card-label {
+
+  color:
+    var(--red);
+
+  font-family:
+    var(--app-font-mono);
+
+  font-size:
+    0.65rem;
+
+  font-weight:
+    700;
+
+  text-transform:
+    uppercase;
+
+}
+
+
+
+.project-card h2 {
+
+  margin:
+    0.75rem 0;
+
+  font-family:
+    var(--app-font-display);
+
+  font-size:
+    2rem;
+
+  font-weight:
+    800;
+
+  letter-spacing:
+    -0.06em;
+
+}
+
+
+
+.project-card p {
+
+  margin:
+    0;
+
+  color:
+    var(--muted-foreground);
+
+  line-height:
+    1.6;
+
+}
+
+
+
+/* BUTTON */
+
+.project-link {
+
+  display:
+    inline-block;
+
+  margin-top:
+    1.5rem;
+
+  padding:
+    0.7rem 1rem;
+
+
+  background:
+    var(--ink);
+
+  color:
+    var(--paper);
+
+
+  font-family:
+    var(--app-font-mono);
+
+  font-size:
+    0.7rem;
+
+  font-weight:
+    700;
+
+  text-decoration:
+    none;
+
+  text-transform:
+    lowercase;
+
+}
+
+
+.project-link:hover {
+
+  background:
+    var(--red);
+
+}
+
+
+
+/* =========================================
+   FOOTER
+========================================= */
+
+
+.ensite-footer {
+
+  margin-top:
+    auto;
+
+  padding:
+    1.5rem 2rem;
+
+  border-top:
+    1px solid var(--ink);
+
+  color:
+    var(--muted-foreground);
+
+  font-family:
+    var(--app-font-mono);
+
+  font-size:
+    0.65rem;
+
+  text-transform:
+    lowercase;
+
+}
+
+
+
+/* =========================================
+   MOBILE
+========================================= */
+
+
+@media (max-width:640px){
+
+
+  .ensite-content {
+
+    width:
+      calc(100% - 2.5rem);
+
+    padding:
+      4rem 0 3rem;
+
+  }
+
+
+  .ensite-content h1 {
+
+    font-size:
+      clamp(3rem, 16vw, 5rem);
+
+  }
+
+
+  .project-grid {
+
+    grid-template-columns:
+      1fr;
+
+  }
+
+
+}

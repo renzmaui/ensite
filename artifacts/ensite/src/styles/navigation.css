@@ -1,0 +1,180 @@
+/* =========================================
+   ENSITE NAVIGATION
+========================================= */
+
+
+.ensite-nav-header {
+
+  height:
+    4.5rem;
+
+  padding:
+    0 2rem;
+
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    space-between;
+
+  background:
+    var(--paper);
+
+  border-bottom:
+    1px solid var(--ink);
+
+}
+
+
+
+/* BRAND */
+
+.ensite-nav-brand {
+
+  color:
+    var(--ink);
+
+  font-family:
+    var(--app-font-display);
+
+  font-size:
+    1.4rem;
+
+  font-weight:
+    800;
+
+  letter-spacing:
+    -0.05em;
+
+  text-decoration:
+    none;
+
+}
+
+
+.ensite-nav-brand:hover {
+
+  color:
+    var(--red);
+
+}
+
+
+
+/* LINKS */
+
+.ensite-nav-links {
+
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  gap:
+    1.5rem;
+
+}
+
+
+.ensite-nav-links a {
+
+  position:
+    relative;
+
+  color:
+    var(--ink);
+
+  font-family:
+    var(--app-font-mono);
+
+  font-size:
+    0.7rem;
+
+  font-weight:
+    700;
+
+  letter-spacing:
+    0.08em;
+
+  text-decoration:
+    none;
+
+  text-transform:
+    lowercase;
+
+}
+
+
+
+.ensite-nav-links a:hover {
+
+  color:
+    var(--red);
+
+}
+
+
+
+/* ACTIVE PAGE */
+
+.ensite-nav-links a.active {
+
+  color:
+    var(--red);
+
+}
+
+
+
+.ensite-nav-links a.active::after {
+
+  content:
+    "";
+
+  position:
+    absolute;
+
+  left:
+    0;
+
+  right:
+    0;
+
+  bottom:
+    -0.55rem;
+
+  height:
+    2px;
+
+  background:
+    var(--red);
+
+}
+
+
+
+/* MOBILE */
+
+@media(max-width:640px){
+
+  .ensite-nav-header {
+
+    padding:
+      0 1.25rem;
+
+  }
+
+
+  .ensite-nav-links {
+
+    gap:
+      1rem;
+
+  }
+
+
+}
