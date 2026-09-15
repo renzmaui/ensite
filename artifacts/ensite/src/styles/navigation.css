@@ -1,180 +1,174 @@
 /* =========================================
-   ENSITE NAVIGATION
-========================================= */
-
+   SHARED ENSITE NAVIGATION
+   ========================================= */
 
 .ensite-nav-header {
-
-  height:
-    4.5rem;
-
-  padding:
-    0 2rem;
-
-  display:
-    flex;
-
-  align-items:
-    center;
-
-  justify-content:
-    space-between;
-
-  background:
-    var(--paper);
-
-  border-bottom:
-    1px solid var(--ink);
-
+  height: 4.5rem;
+  padding: 0 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--ink);
+  background: var(--paper);
 }
-
-
-
-/* BRAND */
 
 .ensite-nav-brand {
-
-  color:
-    var(--ink);
-
-  font-family:
-    var(--app-font-display);
-
-  font-size:
-    1.4rem;
-
-  font-weight:
-    800;
-
-  letter-spacing:
-    -0.05em;
-
-  text-decoration:
-    none;
-
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  color: var(--ink);
+  font-family: var(--app-font-display);
+  font-size: 1.35rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  text-decoration: none;
+  flex-shrink: 0;
 }
 
-
-.ensite-nav-brand:hover {
-
-  color:
-    var(--red);
-
+.ensite-nav-logo {
+  display: block;
+  width: 2rem;
+  height: 2rem;
+  object-fit: contain;
+  flex-shrink: 0;
+  transition: filter 0.2s ease;
 }
 
+.ensite-nav-brand:hover .ensite-nav-logo {
+  filter: brightness(0) saturate(100%)
+    invert(22%) sepia(91%) saturate(2861%)
+    hue-rotate(340deg) brightness(88%) contrast(91%);
+}
 
-
-/* LINKS */
+/* =========================================
+   MAIN NAVIGATION
+   ========================================= */
 
 .ensite-nav-links {
-
-  display:
-    flex;
-
-  align-items:
-    center;
-
-  gap:
-    1.5rem;
-
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex-shrink: 0;
 }
 
-
-.ensite-nav-links a {
-
-  position:
-    relative;
-
-  color:
-    var(--ink);
-
-  font-family:
-    var(--app-font-mono);
-
-  font-size:
-    0.7rem;
-
-  font-weight:
-    700;
-
-  letter-spacing:
-    0.08em;
-
-  text-decoration:
-    none;
-
-  text-transform:
-    lowercase;
-
+.ensite-nav-links > a,
+.ensite-nav-dropdown-trigger {
+  color: var(--ink);
+  font-family: var(--app-font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: normal;
+  text-decoration: none;
+  text-transform: lowercase;
 }
 
-
-
-.ensite-nav-links a:hover {
-
-  color:
-    var(--red);
-
+.ensite-nav-links > a:hover,
+.ensite-nav-dropdown-trigger:hover {
+  color: var(--red);
 }
 
-
-
-/* ACTIVE PAGE */
-
-.ensite-nav-links a.active {
-
-  color:
-    var(--red);
-
+.ensite-nav-links > a.active,
+.ensite-nav-dropdown-trigger.active {
+  color: var(--red);
+  text-decoration: none;
 }
 
+/* =========================================
+   ENHUB DROPDOWN
+   ========================================= */
 
-
-.ensite-nav-links a.active::after {
-
-  content:
-    "";
-
-  position:
-    absolute;
-
-  left:
-    0;
-
-  right:
-    0;
-
-  bottom:
-    -0.55rem;
-
-  height:
-    2px;
-
-  background:
-    var(--red);
-
+.ensite-nav-dropdown {
+  position: relative;
+  flex-shrink: 0;
 }
 
+.ensite-nav-dropdown-trigger {
+  display: inline-flex;
+  align-items: center;
+}
 
+/* Dropdown menu */
 
-/* MOBILE */
+.ensite-nav-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  min-width: 150px;
+  padding: 16px 6px 6px;
+  transform: translateX(-50%) translateY(-6px);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  background: transparent;
+  transition:
+    opacity 180ms ease,
+    transform 180ms ease,
+    visibility 180ms ease;
+}
 
-@media(max-width:640px){
+.ensite-nav-dropdown-menu::after {
+  content: "";
+  position: absolute;
+  inset: 10px 0 0;
+  background: #ffffff;
+  border: 1px solid #e5e5e5;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  z-index: -1;
+}
 
+.ensite-nav-dropdown:hover .ensite-nav-dropdown-menu,
+.ensite-nav-dropdown:focus-within .ensite-nav-dropdown-menu {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Dropdown links */
+
+.ensite-nav-dropdown-menu a {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding: 9px 14px;
+  color: var(--ink);
+  font-family: var(--app-font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: normal;
+  text-align: center;
+  text-decoration: none;
+  text-transform: lowercase;
+  white-space: nowrap;
+  border-radius: 7px;
+  transition: background 150ms ease;
+}
+
+.ensite-nav-dropdown-menu a:hover {
+  background: #f5f5f5;
+}
+
+/* =========================================
+   MOBILE
+   ========================================= */
+
+@media (max-width: 640px) {
   .ensite-nav-header {
-
-    padding:
-      0 1.25rem;
-
+    padding: 0 1.25rem;
   }
-
 
   .ensite-nav-links {
-
-    gap:
-      1rem;
-
+    gap: 1rem;
   }
+}.ensite-nav-links a {
+  text-decoration: none !important;
+  border-bottom: none !important;
+  box-shadow: none !important;
+}
 
-
+.ensite-nav-links a::before,
+.ensite-nav-links a::after {
+  content: none !important;
+  display: none !important;
 }

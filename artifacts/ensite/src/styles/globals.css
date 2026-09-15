@@ -7,126 +7,76 @@
 
 @custom-variant dark (&:is(.dark *));
 
-
 @theme inline {
   --color-background: hsl(var(--background));
   --color-foreground: hsl(var(--foreground));
   --color-border: hsl(var(--border));
-
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-card-border: hsl(var(--card-border));
   --font-sans: var(--app-font-sans);
   --font-serif: var(--app-font-display);
   --font-mono: var(--app-font-mono);
 }
 
-
 :root {
-
   --background: 46 54% 92%;
   --foreground: 60 8% 9%;
-
   --border: 45 15% 80%;
+  --input: 45 15% 73%;
+  --ring: 352 66% 47%;
+
+  --card: 48 100% 99%;
+  --card-foreground: 60 8% 9%;
+  --card-border: 45 20% 83%;
 
   --muted-foreground: 55 7% 38%;
 
-
-  --app-font-sans:
-    'DM Sans',
-    sans-serif;
-
-  --app-font-display:
-    'Bricolage Grotesque',
-    sans-serif;
-
-  --app-font-mono:
-    'Space Mono',
-    monospace;
-
-
-  /* ENSITE COLORS */
+  --app-font-sans: 'DM Sans', sans-serif;
+  --app-font-display: 'Bricolage Grotesque', sans-serif;
+  --app-font-mono: 'Space Mono', monospace;
 
   --ink: #171714;
+  --paper: #fffdf7;
+  --paper-deep: #f6f0df;
 
-  --paper:
-    #fffdf7;
+  --red: #d52e45;
+  --red-soft: #f9dce0;
 
-  --paper-deep:
-    #f6f0df;
+  --green: #1e8b61;
+  --green-soft: #dcefe5;
 
+  --yellow: #f2c94c;
+  --yellow-soft: #fff3c9;
 
-  --red:
-    #d52e45;
-
-  --red-soft:
-    #f9dce0;
-
-
-  --green:
-    #1e8b61;
-
-  --yellow:
-    #f2c94c;
-
-  --yellow-soft:
-    #fff3c9;
-
-
-  --orange:
-    #d97706;
-
+  --orange: #d97706;
+  --orange-soft: #fff0d6;
 }
-
 
 * {
   box-sizing: border-box;
 }
 
-
 html {
-
-  background:
-    var(--paper-deep);
-
+  background: var(--paper-deep);
 }
-
 
 body {
-
   margin: 0;
-
   min-width: 320px;
-
-  background:
-    var(--paper-deep);
-
-  color:
-    var(--ink);
-
-  font-family:
-    var(--app-font-sans);
-
+  background: var(--paper-deep);
+  color: var(--ink);
+  font-family: var(--app-font-sans);
 }
-
 
 button,
 input {
-
   font: inherit;
-
 }
-
 
 button {
-
   cursor: pointer;
-
-  -webkit-tap-highlight-color:
-    transparent;
-
-}
-
-
-a {
-
-  color: inherit;
-
+  -webkit-tap-highlight-color: transparent;
 }

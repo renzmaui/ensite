@@ -902,6 +902,9 @@ function App() {
           </aside>
         </section>
       </main>
+    <footer className="ensite-footer">
+      made for ENGENEs, by ENGENEs
+    </footer>
     </div>
   );
 }
