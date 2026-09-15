@@ -1,4 +1,5 @@
 import SiteNav from "./components/SiteNav";
+import Breadcrumb from "./components/Breadcrumb";
 import "./styles/voting.css";
 
 function Voting() {
@@ -7,7 +8,11 @@ function Voting() {
       <SiteNav current="enhub" />
 
       <main className="ensite-content voting-content">
-        <p className="ensite-label">enhub / voting</p>
+        <Breadcrumb
+          parent="ENHUB"
+          parentPath="/enhub"
+          current="Voting Resources"
+        />
 
         <h1>
           voting
@@ -169,5 +174,4 @@ function Voting() {
     </div>
   );
 }
-
 export default Voting;

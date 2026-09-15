@@ -1,4 +1,5 @@
 import SiteNav from "./components/SiteNav";
+import Breadcrumb from "./components/Breadcrumb";
 import "./styles/streaming.css";
 
 function Streaming() {
@@ -7,7 +8,12 @@ function Streaming() {
       <SiteNav current="enhub" />
 
       <main className="ensite-content streaming-content">
-        <p className="ensite-label">enhub / streaming</p>
+
+        <Breadcrumb
+          parent="ENHUB"
+          parentPath="/enhub"
+          current="Streaming Resources"
+        />
 
         <h1>
           streaming
@@ -134,7 +140,9 @@ function Streaming() {
                 <div>
                   <p className="streaming-card-label">x / twitter</p>
                   <h3>Streaming Updates</h3>
-                  <p>Follow streaming goals, reminders, and comeback updates.</p>
+                  <p>
+                    Follow streaming goals, reminders, and comeback updates.
+                  </p>
                 </div>
                 <span className="streaming-card-arrow">↗</span>
               </a>
