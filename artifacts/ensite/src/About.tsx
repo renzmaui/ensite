@@ -11,7 +11,7 @@ function About() {
         <h1>
           for ENGENEs,
           <br />
-          by ENGENEs.
+          <span>by ENGENEs.</span>
         </h1>
 
         <p className="ensite-tagline">
@@ -20,54 +20,38 @@ function About() {
         </p>
 
         <p className="ensite-description">
-          Oh, you're here. Thank you for dropping by. 🤍
+          Oh, you're here! Thank you for dropping by. ☺︎
         </p>
 
         <p className="ensite-description">
           This little corner of the internet is built with love, curiosity,
           and a lot of free time. It's still a work in progress, so thank you
-          for being here while it grows.
+          for being here while it grows. More things are on the way. 
         </p>
 
         <h2 className="ensite-section-title">What you'll find here</h2>
 
-        <div className="ensite-project">
-          <a href="/enchant" className="ensite-link">
-            enter enchant →
+        <div className="about-projects">
+          <a href="/enchant" className="about-project">
+            <span className="ensite-link">enter enchant →</span>
+
+            <p>
+              An ENHYPEN fanchant guide designed to help ENGENEs learn,
+              practice, and chant along with confidence.
+            </p>
           </a>
 
-          <p className="ensite-project-description">
-            An ENHYPEN fanchant guide designed to help ENGENEs learn, practice,
-            and chant along with confidence.
-          </p>
-        </div>
+          <a href="/enhub" className="about-project">
+            <span className="ensite-link">enter enhub →</span>
 
-        <div className="ensite-project">
-          <a href="/enhub" className="ensite-link">
-            enter enhub →
+            <p>
+              A growing collection of ENGENE resources, including voting,
+              streaming, donation projects, fanbases, and other community
+              efforts.
+            </p>
           </a>
-
-          <p className="ensite-project-description">
-            A growing collection of ENGENE resources, including voting,
-            streaming, donation projects, fanbases, and other community
-            efforts.
-          </p>
         </div>
 
-        <h2 className="ensite-section-title">A little more</h2>
-
-        <p className="ensite-description">
-          Ensite is an independent, fan-made project and is not affiliated with
-          ENHYPEN, BELIFT LAB, or HYBE.
-        </p>
-
-        <p className="ensite-description">
-          It's simply a little corner of the internet made for fellow ENGENEs.
-        </p>
-
-        <p className="ensite-description">
-          More things are on the way. 🤍
-        </p>
       </main>
 
       <footer className="ensite-footer">
